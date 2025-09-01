@@ -1,0 +1,182 @@
+/* Google Fonts (Korean + Latin) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap');
+
+:root{
+  /* 브랜드 컬러: 영상의 어두운 녹색 */
+  --brand: #065f46;
+  --brand-weak: #e6f6f1;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --bg: #ffffff;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: "Noto Sans KR","Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
+}
+
+/* ===== Top bar ===== */
+.topbar{
+  height:56px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;          /* ★ 항상 중앙 */
+  background:#fff;
+  position:sticky; top:0; z-index:20;
+}
+.topbar .brand{
+  font-weight:800;
+  font-size:36px;
+  color:var(--brand);
+  letter-spacing:.2px;
+}
+
+/* ===== Containers ===== */
+.quiz-wrap{ max-width: 920px; margin:0 auto; padding:16px 20px; }
+.result-wrap{ max-width: 920px; margin:0 auto; padding:24px 20px; }
+.intro-content{ max-width: 920px; margin:40px auto; padding:0 20px; text-align:center; }
+
+/* ===== Buttons ===== */
+.btn{
+  padding:10px 16px;
+  border-radius:12px;
+  border:1px solid var(--brand);
+  background:var(--brand);
+  color:#fff;
+  cursor:pointer;
+  font-weight:800;
+}
+.btn.secondary{ background:#fff; color:var(--brand); }
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+.btn-lg{                             /* CTA 크게 */
+  padding:14px 22px;
+  height:56px;
+  min-width:240px;
+  font-size:18px;
+  border-radius:14px;
+}
+.btn:hover{ filter:brightness(.97); }
+
+/* ===== Intro ===== */
+.start-btn{ margin-top:18px; }
+
+/* ===== Quiz ===== */
+.progress{
+  height:12px;
+  border-radius:999px;
+  background:#f3f4f6;
+  border:1px solid var(--border);
+  overflow:hidden;
+  margin-bottom:12px;
+}
+.progress > div{
+  height:100%;
+  background:var(--brand);
+  transition:width .25s ease;
+}
+
+.q-card{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  margin:18px 0;
+  background:#fff;
+  position:relative;
+}
+.q-badge{
+  position:absolute;
+  left:14px; top:14px;
+  background:var(--brand);
+  color:#fff;
+  border-radius:999px;
+  padding:10px 14px;                 /* 크게 */
+  font-weight:800;
+  font-size:clamp(16px, 2.4vw, 22px);/* 크게(반응형) */
+  box-shadow:0 2px 8px rgba(6,95,70,.25);
+}
+
+.q-image{ width:100%; border-radius:12px; display:block; }
+.opt-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; }
+.opt{
+  padding:0; border-radius:12px; border:1px solid var(--border);
+  overflow:hidden; background:#fff; cursor:pointer;
+}
+.opt.selected{ border:3px solid var(--brand); background:var(--brand-weak); }
+.opt img{ width:100%; display:block; }
+
+/* ===== Result ===== */
+.page-title{
+  margin:12px 0 16px;
+  font-size:clamp(22px, 3.2vw, 30px);
+  font-weight:800;
+}
+
+.result-actions{
+  margin-top:26px;
+  display:flex;
+  justify-content:center;           /* ★ 가운데 정렬 */
+}
+
+.retry-btn{ /* .btn와 함께 사용됨 */
+  background:var(--brand);
+  border:1px solid var(--brand);
+  color:#fff;
+}
+
+/* ================== Intro (이미지 오버레이) ================== */
+:root{
+  /* 버튼의 세로 위치 (%). 값이 ↓작을수록 버튼이 위로 올라갑니다.
+     예: 54% → 52% 로 바꾸면 약 1~2cm(해상도에 따라 다름) 위로 이동 */
+  --hero-btn-top: 45%;
+}
+
+.intro-hero{
+  position: relative;
+  max-width: 900px;
+  margin: 28px auto 40px;
+  padding: 0 20px;
+}
+
+.hero-img{
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+}
+
+/* 오버레이 버튼 (그림자 제거, 박스 느낌 제거) */
+.hero-btn{
+  position: absolute;
+  left: 50%;
+  top: var(--hero-btn-top);
+  transform: translate(-50%, -50%);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+  /* ↓ 떠 보이는 원인 제거 */
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.hero-btn-img{
+  width: clamp(180px, 26vw, 320px);
+  height: auto;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* ↓ 떠 보이는 원인 제거 (확대 애니메이션 제거) */
+  transition: none;
+}
+
+/* 작은 화면에서 텍스트 안 가리게 조금 더 아래로 */
+@media (max-width: 480px){
+  :root{ --hero-btn-top: 58%; }
+}
