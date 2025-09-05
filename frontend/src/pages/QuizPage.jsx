@@ -55,7 +55,7 @@ export default function QuizPage() {
 
         {/* 문제 카드 */}
         <div className="q-card">
-          <div className="q-badge">Q{qNo}/9</div>
+          {/* <div className="q-badge">Q{qNo}/9</div> */}
 
           <img
             src={`/assets/quiz-question-${qNo}.jpg`}
