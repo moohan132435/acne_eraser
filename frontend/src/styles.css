@@ -104,11 +104,21 @@ body{
 .intro-hero-wrapper{ position:relative; width:min(720px, 100%); margin:0 auto; }
 .intro-hero{ display:block; width:100%; height:auto; }
 
+/* 기존 */
 .hero-btn{
-  position:absolute; left:50%; transform:translateX(-50%);
-  top:45%; /* 중앙보다 살짝 위 — 필요시 조절 */
-  background:transparent; border:0; padding:0; line-height:0; cursor:pointer;
+  position:absolute;
+  left:50%;
+  transform: translateX(-50%);
+  top:45%;
+  background:transparent;
+  border:0;
+  padding:0;
+  line-height:0;
+  cursor:pointer;
+  /* 새로 추가 ↓ */
+  margin-left: 15px;   /* +값 = 오른쪽 / 단위 px 또는 % 가능 */
 }
+
 .hero-btn img{
   display:block; width:clamp(110px, 34vw, 200px); height:auto;
   user-select:none; -webkit-user-drag:none;

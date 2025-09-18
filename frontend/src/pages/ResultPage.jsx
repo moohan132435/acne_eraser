@@ -9,7 +9,7 @@ export default function ResultPage() {
   const { state: navState } = useLocation();
   const lang = state.lang || "KOR";
 
-  // 결과 복구 (Context → nav.state → localStorage)
+  // 결과 복구 (Context → Router state → localStorage)
   let result = state.result || navState?.result;
   if (!result) {
     try {
@@ -18,11 +18,25 @@ export default function ResultPage() {
     } catch (e) {}
   }
 
-  // 현재 화면에 띄우는 결과 이미지 경로
-  let imgSrc = result?.image || "/assets/result-1.png";
+  // ✅ 결과 이미지 경로 만들기
+  // 1) BE가 code(1~8)를 주면 /assets/result-${code}.png 사용
+  // 2) code 없고 image 경로만 주면 그걸 사용
+  // 3) 둘 다 없으면 result-1.png
+  let imgSrc = "";
+  if (result?.code != null) {
+    imgSrc = `/assets/result-${result.code}.png`;
+  } else if (result?.image) {
+    imgSrc = result.image;
+  } else {
+    imgSrc = "/assets/result-1.png";
+  }
+  // ENG면 _eng 붙이기
   if (lang === "ENG") {
     imgSrc = imgSrc.replace(/(\.png)$/i, "_eng$1");
   }
+
+  // (원하면 콘솔에서 code 확인)
+  // console.debug("RESULT:", result); console.debug("code:", result?.code, "img:", imgSrc);
 
   // 다시하기: 현재 언어 유지한 채 홈으로
   const retry = () => {
@@ -32,33 +46,25 @@ export default function ResultPage() {
     nav("/");
   };
 
-  // 공유: Text는 아무것도 보내지 않음. (이미지 + URL만)
+  // 공유: Text는 비움(이미지 + URL만)
   const shareUrl = "https://acne-eraser.vercel.app/";
-
   const handleShare = async () => {
     try {
-      // 결과 이미지 → Blob → File
       const resp = await fetch(imgSrc, { mode: "same-origin", cache: "no-cache" });
       const blob = await resp.blob();
       const filename = (imgSrc.split("/").pop() || "acne-result.png").replace(/\?.*$/, "");
       const file = new File([blob], filename, { type: blob.type || "image/png" });
 
-      // URL은 url 필드로만 전달, text는 비움
       const basePayload = { title: "Spot Eraser", url: shareUrl };
 
-      // 파일 공유 지원
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ ...basePayload, files: [file] });
         return;
       }
-
-      // 파일 공유 미지원 → URL만 공유
       if (navigator.share) {
-        await navigator.share(basePayload); // text 없음
+        await navigator.share(basePayload);
         return;
       }
-
-      // 더 구형 브라우저 → URL만 클립보드 복사
       await navigator.clipboard.writeText(shareUrl);
       alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
     } catch (e) {
@@ -86,20 +92,15 @@ export default function ResultPage() {
         {/* <h1 className="page-title">진단 결과</h1> */}
         <img
           src={imgSrc}
-          alt="result"
+          alt={`result ${result?.code ?? ""}`}
           style={{ width: "100%", borderRadius: 12 }}
           loading="lazy"
         />
 
-        {/* 버튼: 모바일 친화 세로 스택 */}
+        {/* 버튼: 모바일 세로 스택 */}
         <div
           className="result-actions"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            marginTop: 16,
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}
         >
           <a
             className="btn btn-lg insta-btn"
@@ -111,19 +112,11 @@ export default function ResultPage() {
             {lang === "ENG" ? "Visit INSTAGRAM" : "INSTAGRAM"}
           </a>
 
-          <button
-            className="btn btn-lg share-btn"
-            onClick={handleShare}
-            style={{ width: "100%" }}
-          >
+          <button className="btn btn-lg share-btn" onClick={handleShare} style={{ width: "100%" }}>
             {lang === "ENG" ? "Share" : "공유하기"}
           </button>
 
-          <button
-            className="btn btn-lg retry-btn"
-            onClick={retry}
-            style={{ width: "100%" }}
-          >
+          <button className="btn btn-lg retry-btn" onClick={retry} style={{ width: "100%" }}>
             {lang === "ENG" ? "Retry" : "다시하기"}
           </button>
         </div>
