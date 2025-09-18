@@ -1,27 +1,66 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from django.utils.decorators import method_decorator
+import json, logging, datetime
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .quiz_logic import compute_result
 
-@method_decorator(csrf_exempt, name="dispatch")   # CORS/CSRF 문제 방지
-class ResultView(APIView):
-    authentication_classes = []
-    permission_classes = [AllowAny]
+from . import quiz_logic  # quiz_logic.py 불러오기
 
-    def post(self, request):
-        data = request.data or {}
-        answers = data.get("answers")
-        if not isinstance(answers, list):
-            return Response({"detail": "answers must be a list"}, status=400)
-        if len(answers) != 9:
-            return Response({"detail": "answers length must be 9"}, status=400)
-        try:
-            answers = [int(x) for x in answers]
-        except Exception:
-            return Response({"detail": "answers must be integers"}, status=400)
-        if not all(1 <= x <= 4 for x in answers):
-            return Response({"detail": "answers values must be 1..4"}, status=400)
-        result = compute_result(answers)
-        return Response(result, status=200)
+logger = logging.getLogger(__name__)
+
+def brief_client_info(request):
+    ua = request.META.get("HTTP_USER_AGENT", "-")
+    ip = request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
+    return f"IP={ip} UA={ua[:80]}"
+
+@csrf_exempt
+def result_view(request):
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        body = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"detail": "Invalid JSON"}, status=400)
+
+    answers = body.get("answers")
+    if not isinstance(answers, list) or len(answers) != 9:
+        return JsonResponse({"detail": "answers must be an int[9]"}, status=400)
+
+    try:
+        result = quiz_logic.compute_result(answers)
+    except ValueError as e:
+        return JsonResponse({"detail": str(e)}, status=400)
+
+    # unpack result
+    a_type = result.get("a_type")
+    b_type = result.get("b_type")
+    code   = result.get("code")
+    scores = result.get("scores")
+
+    # 이미지 파일 결정 (FE는 ENG면 _eng 붙여서 사용)
+    image = f"/assets/result-{code}.png" if code else "/assets/result-1.png"
+
+    # WAS 로그 (샘플 포맷 반영)
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_line = (
+        # f"[{now}] {brief_client_info(request)} + Quiz 선택지 : {answers} "
+        f"[{now}] Quiz 선택지 : {answers} "
+        f"--> 민감 : {scores['A'].get('sensitivity',0)}, "
+        f"지성 : {scores['A'].get('oily',0)}, "
+        f"건성 : {scores['A'].get('dry',0)}, "
+        f"복합 : {scores['A'].get('combination',0)}, "
+        f"|| 스트레스 : {scores['B'].get('stress',0)}, "
+        f"환경영향 : {scores['B'].get('environment',0)}, "
+        f"|| 결과 : {(a_type or '해당없음')}/{(b_type or '해당없음')} "
+        f"--> view : result-{code if code else '?'} .png"
+    )
+    logger.info(log_line)
+
+    payload = {
+        "answers": answers,
+        "a_type": a_type,
+        "b_type": b_type,
+        "code": code,
+        "image": image,
+        "scores": scores,
+    }
+    return JsonResponse(payload, status=200)

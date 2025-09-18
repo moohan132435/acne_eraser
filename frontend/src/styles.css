@@ -134,7 +134,7 @@ body{
 :root{
   /* 버튼의 세로 위치 (%). 값이 ↓작을수록 버튼이 위로 올라갑니다.
      예: 54% → 52% 로 바꾸면 약 1~2cm(해상도에 따라 다름) 위로 이동 */
-  --hero-btn-top: 45%;
+  --hero-btn-top: 40%;
 }
 
 .intro-hero{
@@ -232,3 +232,92 @@ body{
   max-width: 100%;
 }
 .hero-btn{ display:inline-block; }
+
+
+.intro-hero-wrapper {
+  position: relative;
+  display: inline-block;  /* 이미지 크기만큼 영역 */
+}
+
+.intro-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;               /* 이미지 정중앙 */
+  transform: translate(-50%, -50%); /* 중앙 기준으로 이동 */
+  /* 👇 여기 margin-top을 음수값으로 주면 "살짝 위로" */
+  margin-top: -5%;
+}
+
+/* 위치는 그대로 */
+.lang-switcher{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+}
+
+/* 아이콘 버튼: 배경/테두리 제거, 터치 영역만 유지 */
+.icon-btn {
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+/* 테두리/배경 없는 깔끔한 버전 */
+.icon-btn--plain{
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  line-height: 0;       /* 아이콘 주변 여백 최소화 */
+}
+
+/* 아이콘 크기/렌더링 */
+.lang-icon{
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+/* 드롭다운 */
+.lang-menu{
+  position: absolute;
+  right: 0;
+  margin-top: 6px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+
+.lang-item{
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: #fff;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.lang-item:hover,
+.lang-item.active{
+  background: #f3f7ff;
+}
+
+/* 키보드 포커스 접근성 */
+.icon-btn--plain:focus-visible,
+.lang-item:focus-visible{
+  outline: 2px solid #2b7a69; /* 브랜드색에 맞춰 조정 */
+  outline-offset: 2px;
+}
+
+

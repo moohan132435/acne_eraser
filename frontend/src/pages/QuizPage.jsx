@@ -14,14 +14,12 @@ export default function QuizPage() {
   const qIndex = state.current; // 0..8
   const qNo = qIndex + 1;       // 1..9
 
-  // 뒤로가기
+  // 뒤로가기: 1번이면 홈, 그 외 이전 문항
   const goBackOne = () => {
     if (qIndex === 0) {
-      // ✅ 첫 번째 문항에서 → 초기화면
       dispatch({ type: "RESET" });
       navigate("/");
     } else {
-      // ✅ 그 외 → 이전 문제로 이동
       dispatch({ type: "PREV" });
     }
   };
@@ -33,23 +31,24 @@ export default function QuizPage() {
   );
   const percent = Math.round((answeredCount / NUM_Q) * 100);
 
-  // 선택 처리
+  // 선택 처리: 항상 최신 배열로 서버 전송
   const pick = async (value) => {
+    const newAnswers = [...state.answers];
+    newAnswers[qIndex] = value;
+
     dispatch({ type: "SET_ANSWER", index: qIndex, value });
 
     if (qIndex === NUM_Q - 1) {
-      const answers = [...state.answers];
-      answers[qIndex] = value;
       try {
         const res = await fetch(`${API_BASE}/api/result`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ answers }),
+          body: JSON.stringify({ answers: newAnswers }), // ✅ 최신 answers
         });
         const json = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(json?.detail || "서버 오류");
         dispatch({ type: "SET_RESULT", value: json });
-        navigate("/result", { state: { answers, result: json } });
+        navigate("/result", { state: { answers: newAnswers, result: json } });
       } catch (e) {
         alert(`결과 계산 실패: ${e.message}`);
       }
@@ -66,7 +65,7 @@ export default function QuizPage() {
       </header>
 
       <div className="quiz-wrap">
-        {/* Progress */}
+        {/* 진행률 */}
         <div className="progress" aria-label="progress">
           <div style={{ width: `${percent}%` }} />
         </div>

@@ -9,7 +9,7 @@ export default function IntroPage() {
   const lang = state.lang || "KOR";
 
   const startQuiz = () => {
-    dispatch({ type: "RESET" }); // 초기화
+    dispatch({ type: "RESET" });
     navigate("/quiz");
   };
 
@@ -21,26 +21,26 @@ export default function IntroPage() {
       </header>
 
       <div className="intro-wrap">
-        <img
-          src={`/assets/Intro${lang === "ENG" ? "_eng" : ""}.png`}
-          alt="intro"
-          className="intro-hero"
-          loading="lazy"
-        />
-
-        <button
-          className="btn btn-lg hero-btn"
-          onClick={startQuiz}
-          aria-label={lang === "ENG" ? "Start diagnosis" : "진단하기"}
-          title={lang === "ENG" ? "Start diagnosis" : "진단하기"}
-        >
+        <div className="intro-hero-wrapper">
           <img
-            src={`/assets/btn_diagnosis${lang === "ENG" ? "_eng" : ""}.png`}
-            alt=""
-            className="hero-btn-img"
-            draggable="false"
+            src={`/assets/Intro${lang === "ENG" ? "_eng" : ""}.png`}
+            alt="intro"
+            className="intro-hero"
+            loading="lazy"
           />
-        </button>
+          <button
+            className="btn btn-lg hero-btn"
+            onClick={startQuiz}
+            aria-label={lang === "ENG" ? "Start diagnosis" : "진단하기"}
+            title={lang === "ENG" ? "Start diagnosis" : "진단하기"}
+          >
+            <img
+              src={`/assets/btn_diagnosis${lang === "ENG" ? "_eng" : ""}.png`}
+              alt=""
+              draggable="false"
+            />
+          </button>
+        </div>
       </div>
     </div>
   );
