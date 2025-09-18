@@ -150,28 +150,28 @@ body{
   display: block;
 }
 
-/* 오버레이 버튼 (그림자 제거, 박스 느낌 제거) */
-.hero-btn{
-  position: absolute;
-  left: 50%;
-  top: var(--hero-btn-top);
+.hero-btn {
+  position:absolute;
+  left:50%;
+  top:50%;
   transform: translate(-50%, -50%);
+  margin-top: -5%;           /* 살짝 위로 — 필요시 조절 */
+  background: transparent;
   border: 0;
   padding: 0;
-  background: transparent;
-  cursor: pointer;
   line-height: 0;
+  cursor: pointer;
   /* ↓ 떠 보이는 원인 제거 */
   filter: none !important;
   box-shadow: none !important;
 }
 
-.hero-btn-img{
-  width: clamp(180px, 26vw, 320px);
-  height: auto;
-  display: block;
+.hero-btn img{
+  display:block;
   user-select: none;
   -webkit-user-drag: none;
+  width: clamp(120px, 32vw, 200px);  /* 최소 120px ~ 최대 200px, 기본은 화면폭의 32% */
+  height: auto;
   /* ↓ 떠 보이는 원인 제거 (확대 애니메이션 제거) */
   transition: none;
 }
@@ -179,7 +179,12 @@ body{
 /* 작은 화면에서 텍스트 안 가리게 조금 더 아래로 */
 @media (max-width: 480px){
   :root{ --hero-btn-top: 58%; }
+  .hero-btn img{
+    width: clamp(100px, 28vw, 170px); /* 모바일 전용 더 작은 값 */
+  }
+  .hero-btn{ margin-top: -6%; } /* 위치도 살짝 더 위로 */
 }
+
 
 /* === Language switcher (top-right) === */
 .lang-switcher{ position:absolute; top:12px; right:12px; }
@@ -225,6 +230,8 @@ body{
   margin: 0 auto;          /* 가운데 정렬 */
   text-align: center;      /* 버튼/이미지 중앙 정렬 */
 }
+
+.intro-hero-wrapper{ position:relative; display:inline-block; }
 .intro-hero{
   display:block;
   margin: 0 auto;          /* 이미지도 중앙 정렬 */
@@ -243,15 +250,6 @@ body{
   display: block;
   width: 100%;
   height: auto;
-}
-
-.hero-btn {
-  position: absolute;
-  left: 50%;
-  top: 50%;               /* 이미지 정중앙 */
-  transform: translate(-50%, -50%); /* 중앙 기준으로 이동 */
-  /* 👇 여기 margin-top을 음수값으로 주면 "살짝 위로" */
-  margin-top: -5%;
 }
 
 /* 위치는 그대로 */
