@@ -116,7 +116,7 @@ body{
   line-height:0;
   cursor:pointer;
   /* 새로 추가 ↓ */
-  margin-left: 15px;   /* +값 = 오른쪽 / 단위 px 또는 % 가능 */
+  margin-left: 25px;   /* +값 = 오른쪽 / 단위 px 또는 % 가능 */
 }
 
 .hero-btn img{
