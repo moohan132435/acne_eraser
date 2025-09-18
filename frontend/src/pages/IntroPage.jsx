@@ -1,10 +1,12 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuizContext } from "../context/QuizContext.jsx";
+import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 
 export default function IntroPage() {
   const navigate = useNavigate();
-  const { dispatch } = useContext(QuizContext);
+  const { state, dispatch } = useContext(QuizContext);
+  const lang = state.lang || "KOR";
 
   const startQuiz = () => {
     dispatch({ type: "RESET" }); // 초기화
@@ -13,31 +15,28 @@ export default function IntroPage() {
 
   return (
     <div className="page intro-page">
-      {/* 상단 브랜드는 모든 페이지와 동일하게 중앙 정렬 */}
       <header className="topbar">
-        <div className="brand">Acne Eraser</div>
+        <div className="brand">Spot Eraser</div>
+        <LanguageSwitcher />
       </header>
 
-      {/* 인트로 메인 비주얼 */}
-      <div className="intro-hero">
+      <div className="intro-wrap">
         <img
-          src="/assets/Intro.png"
-          alt="여드름 피부진단테스트 인트로"
-          className="hero-img"
-          loading="eager"
+          src={`/assets/Intro${lang === "ENG" ? "_eng" : ""}.png`}
+          alt="intro"
+          className="intro-hero"
+          loading="lazy"
         />
 
-        {/* 중앙 오버레이 버튼 (이미지) */}
         <button
-          type="button"
-          className="hero-btn"
+          className="btn btn-lg hero-btn"
           onClick={startQuiz}
-          aria-label="진단하기"
-          title="진단하기"
+          aria-label={lang === "ENG" ? "Start diagnosis" : "진단하기"}
+          title={lang === "ENG" ? "Start diagnosis" : "진단하기"}
         >
           <img
-            src="/assets/btn_diagnosis.png"
-            alt="" /* 장식용 이미지는 alt 비움 */
+            src={`/assets/btn_diagnosis${lang === "ENG" ? "_eng" : ""}.png`}
+            alt=""
             className="hero-btn-img"
             draggable="false"
           />

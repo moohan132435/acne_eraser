@@ -2,7 +2,8 @@ import { createContext, useReducer, useEffect } from "react";
 
 const NUM_Q = 9;
 
-const initial = {
+const initial = { 
+  lang: (localStorage.getItem('lang') || 'KOR'),
   current: 0,                // 0..8
   answers: Array(NUM_Q).fill(null),  // 각 1..4
   result: null               // BE 반환값 캐시
@@ -10,6 +11,12 @@ const initial = {
 
 function reducer(state, action){
   switch(action.type){
+    case "SET_LANG":{
+      const lang = action.payload;
+      localStorage.setItem('lang', lang);
+      return { ...state, lang };
+    }
+
     case "RESET":{
       const fresh = { current: 0, answers: Array(NUM_Q).fill(null), result: null };
       localStorage.setItem("answers", JSON.stringify(fresh.answers));
