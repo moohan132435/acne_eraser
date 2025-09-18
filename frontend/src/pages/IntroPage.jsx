@@ -9,7 +9,10 @@ export default function IntroPage() {
   const lang = state.lang || "KOR";
 
   const startQuiz = () => {
+    // 언어 유지한 채 퀴즈 시작
+    const keepLang = state.lang;
     dispatch({ type: "RESET" });
+    dispatch({ type: "SET_LANG", payload: keepLang });
     navigate("/quiz");
   };
 
@@ -20,6 +23,7 @@ export default function IntroPage() {
         <LanguageSwitcher />
       </header>
 
+      {/* ✅ 중앙 정렬 래퍼 */}
       <div className="intro-wrap">
         <div className="intro-hero-wrapper">
           <img
@@ -28,6 +32,7 @@ export default function IntroPage() {
             className="intro-hero"
             loading="lazy"
           />
+
           <button
             className="btn btn-lg hero-btn"
             onClick={startQuiz}

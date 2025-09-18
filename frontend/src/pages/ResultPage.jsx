@@ -24,7 +24,7 @@ export default function ResultPage() {
     imgSrc = imgSrc.replace(/(\.png)$/i, "_eng$1");
   }
 
-  // 다시하기: 언어 유지 보장
+  // 다시하기: 현재 언어 유지한 채 홈으로
   const retry = () => {
     const keepLang = state.lang;
     dispatch({ type: "RESET" });
@@ -32,54 +32,46 @@ export default function ResultPage() {
     nav("/");
   };
 
-  // 공유하기 (이미지 + 텍스트 + URL)
+  // 공유: Text는 아무것도 보내지 않음. (이미지 + URL만)
   const shareUrl = "https://acne-eraser.vercel.app/";
-  // ✅ 텍스트에는 URL을 넣지 않는다 (중복 방지)
-  const shareTextNoUrl =
-    lang === "ENG"
-      ? "Check your acne type"
-      : "당신의 여드름 타입을 확인하세요";
 
   const handleShare = async () => {
-    // navigator.share에 넘길 공통 페이로드: URL은 url 필드로만!
-    const basePayload = { title: "Spot Eraser", text: shareTextNoUrl, url: shareUrl };
-
     try {
-      // 현재 표시 중인 결과 이미지를 파일로 만들어 파일 공유 시도
+      // 결과 이미지 → Blob → File
       const resp = await fetch(imgSrc, { mode: "same-origin", cache: "no-cache" });
       const blob = await resp.blob();
       const filename = (imgSrc.split("/").pop() || "acne-result.png").replace(/\?.*$/, "");
       const file = new File([blob], filename, { type: blob.type || "image/png" });
 
-      // 파일 공유 가능?
+      // URL은 url 필드로만 전달, text는 비움
+      const basePayload = { title: "Spot Eraser", url: shareUrl };
+
+      // 파일 공유 지원
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ ...basePayload, files: [file] });
         return;
       }
 
-      // 파일 공유 불가 → 텍스트+URL만 공유 (URL은 url 필드에만)
+      // 파일 공유 미지원 → URL만 공유
       if (navigator.share) {
-        await navigator.share(basePayload);
+        await navigator.share(basePayload); // text 없음
         return;
       }
 
-      // 더 구형 브라우저 → 클립보드 복사 (여기서는 문구 + URL을 한 번만 포함)
-      await navigator.clipboard.writeText(`${shareTextNoUrl} - ${shareUrl}`);
+      // 더 구형 브라우저 → URL만 클립보드 복사
+      await navigator.clipboard.writeText(shareUrl);
       alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
-      // window.open(shareUrl, "_blank"); // ⛔️ 중복 유발 소지 → 제거
     } catch (e) {
-      // 오류 시에도 URL 한 번만 포함
       try {
         if (navigator.share) {
-          await navigator.share(basePayload);
+          await navigator.share({ title: "Spot Eraser", url: shareUrl });
           return;
         }
       } catch (_) {}
       try {
-        await navigator.clipboard.writeText(`${shareTextNoUrl} - ${shareUrl}`);
+        await navigator.clipboard.writeText(shareUrl);
         alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
       } catch (_) {}
-      // window.open(shareUrl, "_blank"); // ⛔️ 제거
     }
   };
 
@@ -124,7 +116,6 @@ export default function ResultPage() {
             onClick={handleShare}
             style={{ width: "100%" }}
           >
-            {/* <img src="/assets/share-icon.png" alt="" style={{width:18, height:18, verticalAlign:"-3px", marginRight:8}} /> */}
             {lang === "ENG" ? "Share" : "공유하기"}
           </button>
 

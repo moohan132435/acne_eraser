@@ -319,3 +319,51 @@ body{
 }
 
 
+/* ===== Intro 중앙 정렬 보장 ===== */
+.intro-page .intro-wrap{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12px 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.intro-hero-wrapper{
+  position: relative;
+  width: min(720px, 100%);  /* 최대 720px, 모바일은 100% */
+  margin: 0 auto;
+}
+
+.intro-hero{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 버튼은 이미지의 child처럼 중앙(살짝 위는 margin-top 조절) */
+.hero-btn{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin-top: -5%;           /* 살짝 위로 — 필요시 조절 */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  line-height: 0;
+  cursor: pointer;
+}
+
+/* 버튼 이미지 크기(모바일에서 과대해 보이면 여기서 축소) */
+.hero-btn img{
+  display: block;
+  width: clamp(120px, 32vw, 200px);
+  height: auto;
+}
+
+/* 아주 작은 화면에서 더 보수적으로 */
+@media (max-width: 480px){
+  .hero-btn{ margin-top: -6%; }
+  .hero-btn img{ width: clamp(100px, 28vw, 170px); }
+}
