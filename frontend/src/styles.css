@@ -1,107 +1,96 @@
-/* Google Fonts (Korean + Latin) */
+/* ===== Fonts ===== */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap');
 
+/* ===== Theme ===== */
 :root{
-  /* 브랜드 컬러: 영상의 어두운 녹색 */
-  --brand: #065f46;
-  --brand-weak: #e6f6f1;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --bg: #ffffff;
+  --brand:       #065f46;
+  --brand-weak:  #e6f6f1;
+  --text:        #1f2937;
+  --muted:       #6b7280;
+  --border:      #e5e7eb;
+  --bg:          #ffffff;
 }
 
-*{box-sizing:border-box}
-html,body,#root{height:100%}
+/* ===== Reset ===== */
+*{ box-sizing: border-box; }
+html, body, #root{ height:100%; }
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family: "Noto Sans KR","Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
+  font-family:"Noto Sans KR","Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
 }
 
-/* ===== Top bar ===== */
+/* ===== Topbar ===== */
 .topbar{
-  height:56px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:center;          /* ★ 항상 중앙 */
-  background:#fff;
-  position:sticky; top:0; z-index:20;
+  position:sticky; top:0; z-index:30;
+  display:flex; align-items:center; justify-content:center;
+  background:#fff; border-bottom:1px solid var(--border);
+  padding:6px 40px;
 }
 .topbar .brand{
+  margin:0;
   font-weight:800;
-  font-size:36px;
-  color:var(--brand);
   letter-spacing:.2px;
+  color:var(--brand);
+  font-size:clamp(20px, 6vw, 32px); /* 모바일에서 자동 축소 */
 }
 
+/* Language switcher */
+.lang-switcher{ position:absolute; right:12px; top:50%; transform:translateY(-50%); z-index:31; }
+.icon-btn{ cursor:pointer; border-radius:10px; }
+.icon-btn--plain{ background:transparent; border:0; padding:6px; line-height:0; }
+.lang-icon{ display:block; width:22px; height:22px; object-fit:contain; image-rendering:auto; }
+.lang-menu{
+  position:absolute; right:0; margin-top:6px;
+  background:#fff; border:1px solid #e5e7eb; border-radius:10px;
+  box-shadow:0 10px 28px rgba(0,0,0,.12); overflow:hidden;
+}
+.lang-item{
+  display:block; width:100%; text-align:left; padding:10px 14px;
+  background:#fff; border:0; cursor:pointer; font-weight:700;
+}
+.lang-item:hover, .lang-item.active{ background:#f3f7ff; }
+.icon-btn--plain:focus-visible, .lang-item:focus-visible{ outline:2px solid #2b7a69; outline-offset:2px; }
+
 /* ===== Containers ===== */
-.quiz-wrap{ max-width: 920px; margin:0 auto; padding:16px 20px; }
-.result-wrap{ max-width: 920px; margin:0 auto; padding:24px 20px; }
-.intro-content{ max-width: 920px; margin:40px auto; padding:0 20px; text-align:center; }
+.quiz-wrap   { max-width:920px; margin:0 auto; padding:16px 20px; }
+.result-wrap { max-width:720px; margin:0 auto; padding:24px 20px; }
+.intro-page .intro-wrap{
+  display:flex; justify-content:center; align-items:flex-start;
+  padding:12px 16px 24px; width:100%;
+}
 
 /* ===== Buttons ===== */
 .btn{
-  padding:10px 16px;
-  border-radius:12px;
+  padding:10px 16px; border-radius:12px;
   border:1px solid var(--brand);
-  background:var(--brand);
-  color:#fff;
-  cursor:pointer;
-  font-weight:800;
+  background:var(--brand); color:#fff;
+  cursor:pointer; font-weight:800;
 }
 .btn.secondary{ background:#fff; color:var(--brand); }
-.btn:disabled{ opacity:.6; cursor:not-allowed; }
-
-.btn-lg{                             /* CTA 크게 */
-  padding:14px 22px;
-  height:56px;
-  min-width:240px;
-  font-size:18px;
-  border-radius:14px;
-}
 .btn:hover{ filter:brightness(.97); }
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
+.btn-lg{ padding:14px 22px; min-height:48px; min-width:200px; font-size:18px; border-radius:14px; }
+.retry-btn{ background:var(--brand); border:1px solid var(--brand); color:#fff; }
+.insta-btn{ display:flex; align-items:center; justify-content:center; text-decoration:none; }
 
-/* ===== Intro ===== */
-.start-btn{ margin-top:18px; }
+/* 공통 action rows */
+.quiz-bottom-actions{ display:flex; justify-content:center; margin:16px 0 8px; }
+.result-actions     { display:flex; flex-direction:column; gap:12px; margin-top:16px; justify-content:center; }
 
 /* ===== Quiz ===== */
 .progress{
-  height:12px;
-  border-radius:999px;
-  background:#f3f4f6;
-  border:1px solid var(--border);
-  overflow:hidden;
-  margin-bottom:12px;
+  height:12px; border-radius:999px;
+  background:#f3f4f6; border:1px solid var(--border);
+  overflow:hidden; margin-bottom:12px;
 }
-.progress > div{
-  height:100%;
-  background:var(--brand);
-  transition:width .25s ease;
-}
+.progress > div{ height:100%; background:var(--brand); transition:width .25s ease; }
 
 .q-card{
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:12px;
-  margin:18px 0;
-  background:#fff;
-  position:relative;
+  border:1px solid var(--border); border-radius:14px;
+  padding:12px; margin:18px 0; background:#fff; position:relative;
 }
-.q-badge{
-  position:absolute;
-  left:14px; top:14px;
-  background:var(--brand);
-  color:#fff;
-  border-radius:999px;
-  padding:10px 14px;                 /* 크게 */
-  font-weight:800;
-  font-size:clamp(16px, 2.4vw, 22px);/* 크게(반응형) */
-  box-shadow:0 2px 8px rgba(6,95,70,.25);
-}
-
 .q-image{ width:100%; border-radius:12px; display:block; }
 .opt-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; }
 .opt{
@@ -111,259 +100,23 @@ body{
 .opt.selected{ border:3px solid var(--brand); background:var(--brand-weak); }
 .opt img{ width:100%; display:block; }
 
-/* ===== Result ===== */
-.page-title{
-  margin:12px 0 16px;
-  font-size:clamp(22px, 3.2vw, 30px);
-  font-weight:800;
-}
+/* ===== Intro (hero image & centered CTA) ===== */
+.intro-hero-wrapper{ position:relative; width:min(720px, 100%); margin:0 auto; }
+.intro-hero{ display:block; width:100%; height:auto; }
 
-.result-actions{
-  margin-top:26px;
-  display:flex;
-  justify-content:center;           /* ★ 가운데 정렬 */
-}
-
-.retry-btn{ /* .btn와 함께 사용됨 */
-  background:var(--brand);
-  border:1px solid var(--brand);
-  color:#fff;
-}
-
-/* ================== Intro (이미지 오버레이) ================== */
-:root{
-  /* 버튼의 세로 위치 (%). 값이 ↓작을수록 버튼이 위로 올라갑니다.
-     예: 54% → 52% 로 바꾸면 약 1~2cm(해상도에 따라 다름) 위로 이동 */
-  --hero-btn-top: 40%;
-}
-
-.intro-hero{
-  position: relative;
-  max-width: 900px;
-  margin: 28px auto 40px;
-  padding: 0 20px;
-}
-
-.hero-img{
-  width: 100%;
-  border-radius: 12px;
-  display: block;
-}
-
-.hero-btn {
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform: translate(-50%, -50%);
-  margin-top: -5%;           /* 살짝 위로 — 필요시 조절 */
-  background: transparent;
-  border: 0;
-  padding: 0;
-  line-height: 0;
-  cursor: pointer;
-  /* ↓ 떠 보이는 원인 제거 */
-  filter: none !important;
-  box-shadow: none !important;
-}
-
-.hero-btn img{
-  display:block;
-  user-select: none;
-  -webkit-user-drag: none;
-  width: clamp(120px, 32vw, 200px);  /* 최소 120px ~ 최대 200px, 기본은 화면폭의 32% */
-  height: auto;
-  /* ↓ 떠 보이는 원인 제거 (확대 애니메이션 제거) */
-  transition: none;
-}
-
-/* 작은 화면에서 텍스트 안 가리게 조금 더 아래로 */
-@media (max-width: 480px){
-  :root{ --hero-btn-top: 58%; }
-  .hero-btn img{
-    width: clamp(100px, 28vw, 170px); /* 모바일 전용 더 작은 값 */
-  }
-  .hero-btn{ margin-top: -6%; } /* 위치도 살짝 더 위로 */
-}
-
-
-/* === Language switcher (top-right) === */
-.lang-switcher{ position:absolute; top:12px; right:12px; }
-.icon-btn{ background:#fff; border:1px solid var(--brand); border-radius:10px; padding:8px; cursor:pointer; }
-.lang-menu{ position:absolute; right:0; margin-top:6px; background:#fff; border:1px solid #ddd; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,.08); overflow:hidden; }
-.lang-item{ display:block; width:100%; text-align:left; padding:8px 12px; background:#fff; border:0; cursor:pointer; font-weight:700; }
-.lang-item:hover, .lang-item.active{ background:#f3f7ff; }
-
-/* Back button */
-.back-btn{ margin: 6px 0 12px; }
-.result-actions{ display:flex; gap:8px; margin-top:12px; justify-content:center; }
-.insta-btn{ display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
-
-
-/* frontend/src/styles.css */
-
-.result-actions{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-  justify-content:center;  /* 이미 중앙 정렬이긴 하지만 명시적으로 */
-}
-
-/* 인스타 버튼 내부 텍스트/콘텐츠 가운데 정렬 */
-.insta-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center; /* ⬅️ 가운데 정렬 */
-  text-decoration:none;
-}
-
-/* (참고) 하단 뒤로가기 버튼 중앙 정렬이 필요하면 */
-.quiz-bottom-actions{
-  display:flex;
-  justify-content:center;
-  margin:16px 0 8px;
-}
-.back-btn{ margin:0 auto; }
-
-
-.intro-wrap{
-  max-width: 960px;
-  margin: 0 auto;          /* 가운데 정렬 */
-  text-align: center;      /* 버튼/이미지 중앙 정렬 */
-}
-
-.intro-hero-wrapper{ position:relative; display:inline-block; }
-.intro-hero{
-  display:block;
-  margin: 0 auto;          /* 이미지도 중앙 정렬 */
-  height: auto;
-  max-width: 100%;
-}
-.hero-btn{ display:inline-block; }
-
-
-.intro-hero-wrapper {
-  position: relative;
-  display: inline-block;  /* 이미지 크기만큼 영역 */
-}
-
-.intro-hero {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* 위치는 그대로 */
-.lang-switcher{
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 20;
-}
-
-/* 아이콘 버튼: 배경/테두리 제거, 터치 영역만 유지 */
-.icon-btn {
-  cursor: pointer;
-  border-radius: 10px;
-}
-
-/* 테두리/배경 없는 깔끔한 버전 */
-.icon-btn--plain{
-  background: transparent;
-  border: 0;
-  padding: 6px;
-  line-height: 0;       /* 아이콘 주변 여백 최소화 */
-}
-
-/* 아이콘 크기/렌더링 */
-.lang-icon{
-  display: block;
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  image-rendering: auto;
-}
-
-/* 드롭다운 */
-.lang-menu{
-  position: absolute;
-  right: 0;
-  margin-top: 6px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 10px 28px rgba(0,0,0,.12);
-  overflow: hidden;
-}
-
-.lang-item{
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 14px;
-  background: #fff;
-  border: 0;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.lang-item:hover,
-.lang-item.active{
-  background: #f3f7ff;
-}
-
-/* 키보드 포커스 접근성 */
-.icon-btn--plain:focus-visible,
-.lang-item:focus-visible{
-  outline: 2px solid #2b7a69; /* 브랜드색에 맞춰 조정 */
-  outline-offset: 2px;
-}
-
-
-/* ===== Intro 중앙 정렬 보장 ===== */
-.intro-page .intro-wrap{
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 12px 16px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.intro-hero-wrapper{
-  position: relative;
-  width: min(720px, 100%);  /* 최대 720px, 모바일은 100% */
-  margin: 0 auto;
-}
-
-.intro-hero{
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* 버튼은 이미지의 child처럼 중앙(살짝 위는 margin-top 조절) */
 .hero-btn{
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  margin-top: -5%;           /* 살짝 위로 — 필요시 조절 */
-  background: transparent;
-  border: 0;
-  padding: 0;
-  line-height: 0;
-  cursor: pointer;
+  position:absolute; left:50%; transform:translateX(-50%);
+  top:45%; /* 중앙보다 살짝 위 — 필요시 조절 */
+  background:transparent; border:0; padding:0; line-height:0; cursor:pointer;
 }
-
-/* 버튼 이미지 크기(모바일에서 과대해 보이면 여기서 축소) */
 .hero-btn img{
-  display: block;
-  width: clamp(120px, 32vw, 200px);
-  height: auto;
+  display:block; width:clamp(110px, 34vw, 200px); height:auto;
+  user-select:none; -webkit-user-drag:none;
 }
 
-/* 아주 작은 화면에서 더 보수적으로 */
+/* ===== Mobile tweaks ===== */
 @media (max-width: 480px){
-  .hero-btn{ margin-top: -6%; }
-  .hero-btn img{ width: clamp(100px, 28vw, 170px); }
+  .topbar{ padding:6px 32px; }
+  .hero-btn{ top:43.5%; }              /* 더 위로 */
+  .hero-btn img{ width:clamp(100px, 38vw, 180px); }
 }
