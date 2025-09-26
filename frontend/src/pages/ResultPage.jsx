@@ -9,7 +9,7 @@ export default function ResultPage() {
   const { state: navState } = useLocation();
   const lang = state.lang || "KOR";
 
-  // 결과 복구
+  // 결과 복구 (Context → Router state → localStorage)
   let result = state.result || navState?.result;
   if (!result) {
     try {
@@ -18,7 +18,7 @@ export default function ResultPage() {
     } catch (e) {}
   }
 
-  // code 우선 → image → fallback
+  // 이미지 경로: code 우선 → image → fallback
   let imgSrc = "";
   if (result?.code != null) {
     imgSrc = `/assets/result-${result.code}.png`;
@@ -29,6 +29,7 @@ export default function ResultPage() {
   }
   if (lang === "ENG") imgSrc = imgSrc.replace(/(\.png)$/i, "_eng$1");
 
+  // 다시하기: 언어 유지
   const retry = () => {
     const keepLang = state.lang;
     dispatch({ type: "RESET" });
@@ -36,77 +37,97 @@ export default function ResultPage() {
     nav("/");
   };
 
-  // ===== 공유 =====
+  // ===== 공유 보조 유틸 (안드로이드 대응: clipboard execCommand 폴백) =====
+  const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+
+  // 클립보드 복사 (navigator.clipboard 실패/미지원 시 execCommand 폴백)
+  const copyToClipboard = async (text) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) {
+      // 무시하고 execCommand 폴백 시도
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "0";
+      ta.style.left = "0";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  };
+
+  // 공유 URL: (OG 전용 URL이 있다면 그걸 쓰는 게 이미지 미리보기 호환성↑)
   const ORIGIN =
     typeof window !== "undefined" && window.location?.origin
       ? window.location.origin
       : "https://acne-eraser.vercel.app";
-
   const code =
     result?.code ??
     (() => {
       const m = imgSrc.match(/result-(\d+)/);
       return m ? parseInt(m[1], 10) : 1;
     })();
+  const shareUrl = `${ORIGIN}/share/${code}?lang=${lang}`;
 
-  // Level-2 미지원 브라우저용: OG 태그가 붙은 전용 공유 URL (이미지 미리보기 보장)
-  const ogShareUrl = `${ORIGIN}/share/${code}?lang=${lang}`;
-
-  const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-
-  const copyUrlFallback = async (url) => {
-    try {
-      await navigator.clipboard.writeText(url);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = url;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try { document.execCommand("copy"); } catch {}
-      document.body.removeChild(ta);
-    }
-    alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
-  };
-
+  // 공유: 이미지(+가능하면 파일) + URL / 미지원 시 링크 복사
   const handleShare = async () => {
-    // 1) 파일+URL 동시 공유 시도 (Web Share Level 2)
+    // 1) 파일+URL 동시 공유(Web Share Level 2) 시도
     try {
       const resp = await fetch(imgSrc, { mode: "same-origin", cache: "no-cache" });
       const blob = await resp.blob();
       const filename = (imgSrc.split("/").pop() || "acne-result.png").replace(/\?.*$/, "");
       const file = new File([blob], filename, { type: blob.type || "image/png" });
 
-      // URL 필드는 표준, 일부 삼성 브라우저는 url 무시 → text에 URL만 넣어줌(중복 금지)
-      const payloadBase = isSamsung
-        ? { title: "Spot Eraser", text: ogShareUrl } // 삼성: URL을 text에만
-        : { title: "Spot Eraser", url: ogShareUrl }; // 일반: URL 필드 사용
+      // 삼성 브라우저는 url 필드를 무시하는 사례가 있어 text에만 URL 전달
+      const basePayload = isSamsung
+        ? { title: "Spot Eraser", text: shareUrl }
+        : { title: "Spot Eraser", url: shareUrl };
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ ...payloadBase, files: [file] });
+        await navigator.share({ ...basePayload, files: [file] });
         return;
       }
-    } catch (e) {
-      // 파일 준비 실패 시 아래 폴백으로
+    } catch (_) {
+      // 파일 준비 실패 → 아래 단계로 폴백
     }
 
-    // 2) 파일 공유 불가 → URL만 공유 (OG 미리보기로 이미지가 보임)
+    // 2) 파일 공유 불가: URL만 공유 (표준/삼성 분기)
     try {
       const payload = isSamsung
-        ? { title: "Spot Eraser", text: ogShareUrl } // 삼성: text에만
-        : { title: "Spot Eraser", url: ogShareUrl }; // 일반: url에만
+        ? { title: "Spot Eraser", text: shareUrl } // 삼성: text에만 URL
+        : { title: "Spot Eraser", url: shareUrl }; // 일반: url 필드 사용
       if (navigator.share) {
         await navigator.share(payload);
         return;
       }
-    } catch (e) {
-      // 계속 폴백
+    } catch (_) {
+      // 아래 폴백
     }
 
-    // 3) 최종 폴백: 링크 복사
-    await copyUrlFallback(ogShareUrl);
+    // 3) 최종 폴백: URL을 클립보드 복사 (execCommand까지 시도)
+    const copied = await copyToClipboard(shareUrl);
+    if (copied) {
+      alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
+    } else {
+      alert(
+        lang === "ENG"
+          ? "Sharing is not supported in this environment."
+          : "이 브라우저에서는 공유하기가 지원되지 않습니다."
+      );
+    }
   };
 
   return (
@@ -135,7 +156,7 @@ export default function ResultPage() {
             rel="noreferrer"
             style={{ width: "100%", display: "flex", justifyContent: "center" }}
           >
-            {lang === "ENG" ? "Visit INSTAGRAM" : "INSTAGRAM"}
+            {lang === "ENG" ? "Start Acne DM" : "여드름 상담 시작(DM)"}
           </a>
 
           <button className="btn btn-lg share-btn" onClick={handleShare} style={{ width: "100%" }}>
