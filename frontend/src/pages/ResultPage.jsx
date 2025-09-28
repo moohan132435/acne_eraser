@@ -33,20 +33,12 @@ export default function ResultPage() {
     nav("/");
   };
 
-  // ===== 공유 설정 =====
-  const BASE_URL = "https://acne-eraser.vercel.app";
-
+  // ===== 플랫폼 판별 & 상수 =====
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
   const isIOS = /iPad|iPhone|iPod/i.test(ua);
-  const isAndroid = /Android/i.test(ua);
-  const isSamsung = /SamsungBrowser/i.test(ua);
-  // Android Chrome heuristic (삼성/엣지/오페라/기타 제외)
-  const isAndroidChrome =
-    isAndroid &&
-    /\bChrome\/\d+/.test(ua) &&
-    !/SamsungBrowser|EdgA|OPR|UCBrowser|MiuiBrowser|DuckDuckGo|YaBrowser/i.test(ua);
+  const BASE_URL = "https://acne-eraser.vercel.app"; // 항상 이 URL만 공유/복사
 
-  // 유틸: 이미지 파일 준비
+  // ===== 유틸 =====
   const fetchAsFile = async (url) => {
     const resp = await fetch(url, { mode: "same-origin", cache: "no-cache" });
     if (!resp.ok) throw new Error("image fetch failed");
@@ -55,7 +47,6 @@ export default function ResultPage() {
     return new File([blob], filename, { type: blob.type || "image/png" });
   };
 
-  // 유틸: URL 복사 (clipboard → execCommand 폴백)
   const copyUrl = async (url) => {
     try {
       if (navigator.clipboard?.writeText) {
@@ -82,56 +73,44 @@ export default function ResultPage() {
     }
   };
 
+  // ===== 공유 버튼 =====
   const handleShare = async () => {
-    // 1) 파일 + URL 동시 공유 시도 (가능한 모든 환경에서 최우선)
-    try {
-      const file = await fetchAsFile(imgSrc);
-
-      if (navigator.canShare && navigator.canShare({ files: [file] }) && typeof navigator.share === "function") {
-        if (isAndroidChrome) {
-          // ✅ Android Chrome에서 일부 타겟앱이 url을 무시하는 문제 보완:
-          //    text에도 동일 URL을 넣어 전달 (중복 우려는 Android Chrome에만 한정)
-          await navigator.share({ title: "Spot Eraser", url: BASE_URL, text: BASE_URL, files: [file] });
-        } else if (isIOS) {
-          // iOS: 중복 방지 위해 url만 (text는 비움)
+    // iOS: 이미지+URL 공유 유지 (가능 시)
+    if (isIOS) {
+      try {
+        const file = await fetchAsFile(imgSrc);
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && typeof navigator.share === "function") {
           await navigator.share({ title: "Spot Eraser", url: BASE_URL, files: [file] });
-        } else {
-          // 기타: 기본 조합
-          await navigator.share({ title: "Spot Eraser", url: BASE_URL, files: [file] });
+          return;
         }
-        return;
+      } catch {
+        // 파일 준비 실패 → 아래 단계
       }
-    } catch (e) {
-      // 파일 생성/공유 실패 → 아래 단계로
-    }
-
-    // 2) 파일 공유가 막힌 환경 → URL만 네이티브 공유 시트(삼성 제외) 또는 복사
-    try {
-      if (typeof navigator.share === "function" && !isSamsung) {
-        if (isAndroidChrome) {
-          // Android Chrome: url + text 모두 전달 (일부 타겟앱 보정)
-          await navigator.share({ title: "Spot Eraser", url: BASE_URL, text: BASE_URL });
-        } else {
+      try {
+        if (typeof navigator.share === "function") {
           await navigator.share({ title: "Spot Eraser", url: BASE_URL });
+          return;
         }
-        return;
+      } catch (err) {
+        if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
       }
-    } catch (err) {
-      // 사용자가 취소한 경우는 조용히 종료
-      if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
+      // 최종: URL 복사
+      const copied = await copyUrl(BASE_URL);
+      alert(
+        copied
+          ? (lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.")
+          : (lang === "ENG" ? "Sharing is not supported in this environment." : "이 브라우저에서는 공유하기가 지원되지 않습니다.")
+      );
+      return;
     }
 
-    // 3) 최종 폴백: URL 복사 (삼성/인앱 등)
+    // Android(크롬 포함) 및 기타: 요구사항대로 "URL만 복사"
     const copied = await copyUrl(BASE_URL);
-    if (copied) {
-      alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
-    } else {
-      alert(
-        lang === "ENG"
-          ? "Sharing is not supported in this environment."
-          : "이 브라우저에서는 공유하기가 지원되지 않습니다."
-      );
-    }
+    alert(
+      copied
+        ? (lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.")
+        : (lang === "ENG" ? "Sharing is not supported in this environment." : "이 브라우저에서는 공유하기가 지원되지 않습니다.")
+    );
   };
 
   return (
