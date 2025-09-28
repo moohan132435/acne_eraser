@@ -77,7 +77,7 @@ LOGGING = {
         "app": {  # views.py의 logger = logging.getLogger(__name__)면 모듈 경로에 맞게 수정
             "handlers": ["console"],
             "level": "INFO",
-            "propagate": False,
+            "propagate": True,
         },
         # 혹은 루트 로거 사용
         "": {
