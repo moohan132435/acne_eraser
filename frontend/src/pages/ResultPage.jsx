@@ -9,7 +9,7 @@ export default function ResultPage() {
   const { state: navState } = useLocation();
   const lang = state.lang || "KOR";
 
-  // 결과 복구 (Context → Router state → localStorage)
+  // 결과 복구
   let result = state.result || navState?.result;
   if (!result) {
     try {
@@ -18,18 +18,13 @@ export default function ResultPage() {
     } catch {}
   }
 
-  // 이미지 경로: code 우선 → image → fallback
-  let imgSrc = "";
-  if (result?.code != null) {
-    imgSrc = `/assets/result-${result.code}.png`;
-  } else if (result?.image) {
-    imgSrc = result.image;
-  } else {
-    imgSrc = "/assets/result-1.png";
-  }
+  // 결과 이미지: code 우선, 없으면 image, 그래도 없으면 1번
+  let imgSrc = result?.code != null
+    ? `/assets/result-${result.code}.png`
+    : (result?.image || "/assets/result-1.png");
   if (lang === "ENG") imgSrc = imgSrc.replace(/(\.png)$/i, "_eng$1");
 
-  // 다시하기: 언어 유지
+  // 다시하기(언어 유지)
   const retry = () => {
     const keepLang = state.lang;
     dispatch({ type: "RESET" });
@@ -37,15 +32,16 @@ export default function ResultPage() {
     nav("/");
   };
 
-  // ===== 공유 로직 =====
-  // 요구사항: 어떤 환경이든 URL은 항상 이 값만 사용
+  // ===== 공유 설정 =====
+  // ⚠️ 요구사항: 어떤 경우에도 이 BASE_URL만 공유/복사한다.
   const BASE_URL = "https://acne-eraser.vercel.app";
 
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
   const isIOS = /iPad|iPhone|iPod/i.test(ua);
   const isSamsung = /SamsungBrowser/i.test(ua);
+  const isInApp = /(KAKAOTALK|FBAN|FBAV|Instagram|Line|NAVER|Daum)/i.test(ua);
 
-  // 클립보드 복사 (clipboard API 실패 시 execCommand 폴백)
+  // 클립보드(clipboard API → execCommand 폴백)
   const copyToClipboard = async (text) => {
     try {
       if (navigator.clipboard?.writeText) {
@@ -73,9 +69,10 @@ export default function ResultPage() {
   };
 
   const handleShare = async () => {
-    // 아이폰: 가능하면 파일+URL 동시 공유 유지
+    // ===== iOS: 파일+URL 시도 → URL만 → 복사 =====
     if (isIOS) {
       try {
+        // 파일+URL (Web Share Level 2)
         const resp = await fetch(imgSrc, { mode: "same-origin", cache: "no-cache" });
         const blob = await resp.blob();
         const filename = (imgSrc.split("/").pop() || "acne-result.png").replace(/\?.*$/, "");
@@ -86,44 +83,48 @@ export default function ResultPage() {
           return;
         }
       } catch {
-        // 파일 준비 실패 시 아래로 폴백
+        /* 파일 준비 실패 → 아래 단계 */
       }
       try {
-        if (navigator.share) {
+        if (typeof navigator.share === "function") {
           await navigator.share({ title: "Spot Eraser", url: BASE_URL });
           return;
         }
-      } catch {
-        // 아래로 폴백
+      } catch (err) {
+        // 유저가 취소(AbortError)한 경우 등은 그냥 종료
+        if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
       }
       const copied = await copyToClipboard(BASE_URL);
-      alert(copied
-        ? (lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.")
-        : (lang === "ENG" ? "Sharing is not supported in this environment." : "이 브라우저에서는 공유하기가 지원되지 않습니다.")
+      alert(
+        copied
+          ? (lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.")
+          : (lang === "ENG" ? "Sharing is not supported in this environment." : "이 브라우저에서는 공유하기가 지원되지 않습니다.")
       );
       return;
     }
 
-    // 안드로이드 계열
-    try {
-      // 삼성 브라우저는 url 무시 사례 → text에만 BASE_URL 넣기
-      const payload = isSamsung
-        ? { title: "Spot Eraser", text: BASE_URL }
-        : { title: "Spot Eraser", url: BASE_URL };
-
-      if (navigator.share) {
+    // ===== ANDROID: 네이티브 공유 시트 우선 =====
+    // 인앱/삼성 등 케이스: url 필드 무시 → text에만 BASE_URL, 그 외는 url 사용
+    if (typeof navigator.share === "function" && !isInApp) {
+      try {
+        const payload = isSamsung
+          ? { title: "Spot Eraser", text: BASE_URL } // 삼성: text만 안전
+          : { title: "Spot Eraser", url: BASE_URL }; // 일반 크롬: url 사용
         await navigator.share(payload);
         return;
+      } catch (err) {
+        // 유저가 취소(AbortError)면 복사로 가지지 말고 그냥 종료
+        if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
+        // 그 외 에러일 때만 복사 폴백
       }
-    } catch {
-      // 아래로 폴백
     }
 
-    // 최종 폴백: 복사 (항상 BASE_URL)
+    // ===== 최종 폴백(안드로이드·인앱): BASE_URL만 복사 =====
     const copied = await copyToClipboard(BASE_URL);
-    alert(copied
-      ? (lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.")
-      : (lang === "ENG" ? "Sharing is not supported in this environment." : "이 브라우저에서는 공유하기가 지원되지 않습니다.")
+    alert(
+      copied
+        ? (lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.")
+        : (lang === "ENG" ? "Sharing is not supported in this environment." : "이 브라우저에서는 공유하기가 지원되지 않습니다.")
     );
   };
 
