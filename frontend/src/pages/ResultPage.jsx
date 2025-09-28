@@ -18,10 +18,11 @@ export default function ResultPage() {
     } catch {}
   }
 
-  // 이미지 경로: code 우선 → image → fallback
-  let imgSrc = result?.code != null
-    ? `/assets/result-${result.code}.png`
-    : (result?.image || "/assets/result-1.png");
+  // 결과 이미지 경로: code 우선 → image → fallback
+  let imgSrc =
+    result?.code != null
+      ? `/assets/result-${result.code}.png`
+      : result?.image || "/assets/result-1.png";
   if (lang === "ENG") imgSrc = imgSrc.replace(/(\.png)$/i, "_eng$1");
 
   // 다시하기(언어 유지)
@@ -32,19 +33,26 @@ export default function ResultPage() {
     nav("/");
   };
 
-  // ===== 공유 유틸 =====
-  const BASE_URL = "https://acne-eraser.vercel.app"; // 요구사항: 언제나 이 URL만 공유/복사
-
+  // ===== 플랫폼 판별 =====
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  const isIOS      = /iPad|iPhone|iPod/i.test(ua);
-  const isSamsung  = /SamsungBrowser/i.test(ua);
-  const isInApp    = /(KAKAOTALK|FBAN|FBAV|Instagram|Line|NAVER|Daum|Whale|Electron)/i.test(ua);
+  const isIOS = /iPad|iPhone|iPod/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+
+  // 항상 이 URL만 iOS 공유에 사용(요구사항 유지)
+  const BASE_URL = "https://acne-eraser.vercel.app";
+
+  // ===== 유틸 =====
+  const fetchAsBlob = async (url) => {
+    const resp = await fetch(url, { mode: "same-origin", cache: "no-cache" });
+    if (!resp.ok) throw new Error("image fetch failed");
+    return await resp.blob();
+  };
 
   const fetchAsFile = async (url) => {
-    const resp = await fetch(url, { mode: "same-origin", cache: "no-cache" });
-    const blob = await resp.blob();
+    const blob = await fetchAsBlob(url);
     const filename = (url.split("/").pop() || "acne-result.png").replace(/\?.*$/, "");
-    return new File([blob], filename, { type: blob.type || "image/png" });
+    const type = blob.type || "image/png";
+    return new File([blob], filename, { type });
   };
 
   const triggerDownload = (file) => {
@@ -58,129 +66,96 @@ export default function ResultPage() {
     URL.revokeObjectURL(url);
   };
 
-  const copyToClipboard = async (text) => {
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-    } catch {}
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.top = "0";
-      ta.style.left = "0";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-      return ok;
-    } catch {
-      return false;
+  const copyImageToClipboard = async (blob) => {
+    // Chrome(안드) 일부에서만 지원. 실패하면 throw 하도록 둔다.
+    if (!window.ClipboardItem || !navigator.clipboard?.write) {
+      throw new Error("image clipboard unsupported");
     }
+    const item = new ClipboardItem({ [blob.type || "image/png"]: blob });
+    await navigator.clipboard.write([item]);
   };
 
-  const tryShareFilesAndUrl = async (file) => {
-    // 조합 1: files + url
-    try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: "Spot Eraser", url: BASE_URL, files: [file] });
-        return true;
-      }
-    } catch {}
-    // 조합 2: files + text (삼성 일부 버전이 url을 무시하는 경우)
-    try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: "Spot Eraser", text: BASE_URL, files: [file] });
-        return true;
-      }
-    } catch {}
-    // 조합 3: files 만 (일부 기기에서 공유 시트가 뜨고 사용자가 링크를 수동 추가)
-    try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: "Spot Eraser", files: [file] });
-        return true;
-      }
-    } catch {}
-    return false;
-  };
-
+  // ===== 공유 버튼 핸들러 =====
   const handleShare = async () => {
-    // 0) 파일 준비(이미지)
-    let file = null;
-    try {
-      file = await fetchAsFile(imgSrc);
-    } catch {
-      // 파일 생성 실패 시, 아래 폴백으로(자동 저장 없이 URL만 공유/복사)
-    }
-
-    // 1) iOS / Android Chrome 등: files+url 우선 시도
-    if (!isInApp && typeof navigator.share === "function") {
-      if (file) {
-        const ok = await tryShareFilesAndUrl(file);
-        if (ok) return;
-      }
-      // 파일 공유가 막힌 경우: URL만 공유 (그래도 네이티브 공유 시트)
+    if (isIOS) {
+      // iOS: 파일 + URL 동시 공유 복구 (Web Share Level 2)
       try {
-        // 삼성 브라우저는 url 무시 사례 → text로도 한 번 더 시도
-        if (!isSamsung) {
-          await navigator.share({ title: "Spot Eraser", url: BASE_URL });
-        } else {
-          await navigator.share({ title: "Spot Eraser", text: BASE_URL });
+        const file = await fetchAsFile(imgSrc);
+
+        // 1) 파일 + URL
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ title: "Spot Eraser", url: BASE_URL, files: [file] });
+            return;
+          } catch {
+            // 2) 파일만 (URL 안 붙는 환경)
+            await navigator.share({ title: "Spot Eraser", files: [file] });
+            return;
+          }
         }
-        return;
-      } catch (err) {
-        // 유저 취소 시 아무 것도 하지 않음
-        if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
-        // 아래 폴백 계속
+      } catch {
+        // 파일 생성 실패 → 아래 URL-only 단계
       }
-    }
 
-    // 2) 인앱/삼성 등 파일 공유 미지원 → 2-step 폴백
-    //    (1) 이미지를 자동 저장시켜주고
-    //    (2) URL 공유 시트를 열어 사용자가 방금 저장한 이미지를 선택해 붙이게 함
-    if (file) {
+      // 3) URL만 (최후)
       try {
-        triggerDownload(file); // 자동 저장
+        if (typeof navigator.share === "function") {
+          await navigator.share({ title: "Spot Eraser", url: BASE_URL });
+          return;
+        }
       } catch {}
+      // 공유 시트도 안되면 복사 안내
+      try {
+        await navigator.clipboard.writeText(BASE_URL);
+        alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
+      } catch {
+        alert(
+          lang === "ENG"
+            ? "Sharing is not supported in this environment."
+            : "이 브라우저에서는 공유하기가 지원되지 않습니다."
+        );
+      }
+      return;
     }
 
-    // 공유 시트(가능하면) 혹은 복사
-    try {
-      if (typeof navigator.share === "function") {
-        // 삼성: text, 일반: url
-        if (!isSamsung) {
-          await navigator.share({ title: "Spot Eraser", url: BASE_URL });
-        } else {
-          await navigator.share({ title: "Spot Eraser", text: BASE_URL });
-        }
-        // 안내 토스트
-        if (file) {
+    if (isAndroid) {
+      // ANDROID: "이미지만 복사" 요구사항
+      try {
+        const blob = await fetchAsBlob(imgSrc);
+        await copyImageToClipboard(blob);
+        alert(lang === "ENG" ? "Image copied to clipboard." : "이미지를 클립보드에 복사했어요.");
+        return;
+      } catch {
+        // 이미지 클립보드 미지원/실패 → 다운로드로 폴백(이미지 확보는 보장)
+        try {
+          const file = await fetchAsFile(imgSrc);
+          triggerDownload(file);
           alert(
             lang === "ENG"
-              ? "Image saved. In the share sheet, attach the saved image."
-              : "이미지를 저장했어요. 공유 창에서 방금 저장된 이미지를 첨부해 주세요."
+              ? "Image saved. You can paste it from your gallery."
+              : "이미지를 저장했어요. 갤러리에서 붙여넣어 사용할 수 있어요."
           );
+          return;
+        } catch {
+          alert(
+            lang === "ENG"
+              ? "Cannot copy nor save image in this browser."
+              : "이 브라우저에서는 이미지 복사/저장이 지원되지 않아요."
+          );
+          return;
         }
-        return;
       }
-    } catch (err) {
-      if (err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
     }
 
-    // 3) 최종 폴백: 링크 복사 + 안내
-    const copied = await copyToClipboard(BASE_URL);
-    if (copied) {
-      alert(
-        (lang === "ENG"
-          ? "Link copied. If you also need the image, use the saved image from your gallery."
-          : "링크를 복사했어요. 이미지도 필요하다면 갤러리의 저장된 이미지를 함께 보내 주세요.")
-      );
-    } else {
+    // 그 외 플랫폼: iOS/Android 외 환경은 URL만 공유(안내)
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title: "Spot Eraser", url: BASE_URL });
+        return;
+      }
+      await navigator.clipboard.writeText(BASE_URL);
+      alert(lang === "ENG" ? "Link copied to clipboard." : "링크를 클립보드에 복사했어요.");
+    } catch {
       alert(
         lang === "ENG"
           ? "Sharing is not supported in this environment."

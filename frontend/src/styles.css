@@ -101,7 +101,14 @@ body{
 .opt img{ width:100%; display:block; }
 
 /* ===== Intro (hero image & centered CTA) ===== */
-.intro-hero-wrapper{ position:relative; width:min(720px, 100%); margin:0 auto; }
+/* .intro-hero-wrapper{ position:relative; width:min(720px, 100%); margin:0 auto; }
+ */
+ .intro-hero-wrapper{
+  width: 100%;
+  max-width: clamp(360px, 92vw, 960px);
+  margin: 0 auto;
+}
+
 .intro-hero{ display:block; width:100%; height:auto; }
 
 /* 기존 */
