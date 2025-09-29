@@ -33,8 +33,8 @@ export default function LanguageSwitcher() {
           src="/assets/global.png"
           alt=""
           className="lang-icon"
-          width={44}
-          height={44}
+          width={22}
+          height={22}
           draggable="false"
         />
       </button>

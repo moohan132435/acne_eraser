@@ -37,7 +37,24 @@ body{
 }
 
 /* Language switcher */
-.lang-switcher{ position:absolute; right:12px; top:50%; transform:translateY(-50%); z-index:31; }
+/* .lang-switcher{ position:absolute; right:12px; top:50%; transform:translateY(-50%); z-index:31; } */
+/* 버튼(컨테이너) 터치 영역도 함께 키우기 */
+.lang-switcher{
+  position:absolute; right:12px; top:50%;
+  transform:translateY(-50%);
+  z-index:31;
+
+  width:44px;   /* ← 클릭 영역 */
+  height:44px;  /* ← 클릭 영역 */
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* 실제 아이콘 크기 */
+.lang-switcher img,
+.lang-switcher svg{
+  width:50px;   /* ← 아이콘 크기만 키우고 싶으면 여기 숫자만 늘려요 */
+  height:50px;
+}
 .icon-btn{ cursor:pointer; border-radius:10px; }
 .icon-btn--plain{ background:transparent; border:0; padding:6px; line-height:0; }
 .lang-icon{ display:block; width:22px; height:22px; object-fit:contain; image-rendering:auto; }
