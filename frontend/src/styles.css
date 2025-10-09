@@ -251,7 +251,7 @@ body{
 
   /* 모바일에선 이미지 더 낮게 */
   .intro-hero{
-    max-height: clamp(260px, 55dvh, 420px);
+    max-height: clamp(340px, 60dvh, 480px);
   }
 
   .hero-btn{ top:43.5%; }
