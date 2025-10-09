@@ -155,20 +155,20 @@ body{
 .result-wrap { max-width:720px;  margin:0 auto; padding:24px 20px; }
 
 /* ===== Intro 페이지 레이아웃 (수정됨) ===== */
-.page.intro-page{
-  min-height:100dvh;
-  display:flex;
-  flex-direction:column;
+.page.intro-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 인트로 본문 래퍼: 가운데 정렬 + 세로 패딩 축소 (핵심) */
-.intro-page .intro-wrap{
-  flex:1;
-  display:grid;
-  place-items:center;
-  width:100%;
-  padding-inline:16px;
-  padding-block: clamp(12px, 3vh, 32px); /* 상하 패딩을 화면에 맞춰 축소 */
+.intro-page .intro-wrap {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 0;              /* 상하 패딩 제거 */
+  margin: 0;
 }
 
 /* ===== Buttons ===== */
@@ -211,19 +211,23 @@ body{
 .opt img{ width:100%; display:block; }
 
 /* ===== Intro (hero image & centered CTA) ===== */
-.intro-hero-wrapper{
-  width:100%;
-  max-width: clamp(360px, 92vw, 960px);
-  margin:0 auto;
+.intro-hero-wrapper {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 핵심: 이미지의 표시 최대 높이 제한으로 세로 과점유 방지 */
-.intro-hero{
-  display:block;
-  width:100%;
-  height:auto;
-  max-height: clamp(320px, 60dvh, 560px); /* 데스크톱: 최대 560px, 화면의 60vh까지 */
+.intro-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 90vh;       /* 화면의 90% 높이까지 확장 */
   object-fit: contain;
+  margin: 0 auto;
 }
 
 /* CTA 버튼(이미지 중앙보다 살짝 위) — 현재는 전체 클릭으로 대체 가능하지만 유지 */
@@ -250,8 +254,9 @@ body{
   .topbar{ padding:6px 32px; }
 
   /* 모바일에선 이미지 더 낮게 */
-  .intro-hero{
-    max-height: clamp(340px, 60dvh, 480px);
+  .intro-hero {
+    max-height: 92vh;     /* 모바일에서는 더 크게 (거의 꽉 차게) */
+    object-fit: cover;    /* contain → cover 로 변경시 꽉 차게 보임 (잘릴 수 있음) */
   }
 
   .hero-btn{ top:43.5%; }
