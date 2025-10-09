@@ -12,7 +12,7 @@
 
   /* ▼ LANG 아이콘/터치 크기 (여기만 조절하면 됨) */
   --lang-hit: 40px;    /* 클릭/터치 영역(투명) 기본 40px */
-  --lang-icon: 16px;   /* LANG 이미지 '높이' 기본 24px (가로는 비율 유지) */
+  --lang-icon: 16px;   /* LANG 이미지 '높이' 기본 16px (가로는 비율 유지) */
 }
 
 /* ===== Reset ===== */
@@ -153,9 +153,22 @@ body{
 /* ===== Containers ===== */
 .quiz-wrap   { max-width:920px;  margin:0 auto; padding:16px 20px; }
 .result-wrap { max-width:720px;  margin:0 auto; padding:24px 20px; }
+
+/* ===== Intro 페이지 레이아웃 (수정됨) ===== */
+.page.intro-page{
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* 인트로 본문 래퍼: 가운데 정렬 + 세로 패딩 축소 (핵심) */
 .intro-page .intro-wrap{
-  display:flex; justify-content:center; align-items:flex-start;
-  padding:12px 16px 24px; width:100%;
+  flex:1;
+  display:grid;
+  place-items:center;
+  width:100%;
+  padding-inline:16px;
+  padding-block: clamp(12px, 3vh, 32px); /* 상하 패딩을 화면에 맞춰 축소 */
 }
 
 /* ===== Buttons ===== */
@@ -203,9 +216,17 @@ body{
   max-width: clamp(360px, 92vw, 960px);
   margin:0 auto;
 }
-.intro-hero{ display:block; width:100%; height:auto; }
 
-/* CTA 버튼(이미지 중앙보다 살짝 위) */
+/* 핵심: 이미지의 표시 최대 높이 제한으로 세로 과점유 방지 */
+.intro-hero{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height: clamp(320px, 60dvh, 560px); /* 데스크톱: 최대 560px, 화면의 60vh까지 */
+  object-fit: contain;
+}
+
+/* CTA 버튼(이미지 중앙보다 살짝 위) — 현재는 전체 클릭으로 대체 가능하지만 유지 */
 .hero-btn{
   position:absolute;
   left:50%;
@@ -227,6 +248,12 @@ body{
 /* ===== Mobile tweaks ===== */
 @media (max-width: 480px){
   .topbar{ padding:6px 32px; }
-  .hero-btn{ top:43.5%; }              /* 더 위로 */
+
+  /* 모바일에선 이미지 더 낮게 */
+  .intro-hero{
+    max-height: clamp(260px, 55dvh, 420px);
+  }
+
+  .hero-btn{ top:43.5%; }
   .hero-btn img{ width:clamp(100px, 38vw, 180px); }
 }
