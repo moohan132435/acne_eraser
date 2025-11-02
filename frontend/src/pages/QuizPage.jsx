@@ -72,7 +72,17 @@ export default function QuizPage() {
     }
   };
 
-  const goPrev = () => dispatch({ type: "PREV" });
+const goPrev = () => {
+  if (current === 0) {
+    // Q1에서 뒤로가기 → Intro로 이동 (언어 유지)
+    const keep = state.lang;
+    dispatch({ type: "RESET" });                 // answers/result 초기화
+    dispatch({ type: "SET_LANG", payload: keep });// 언어 유지
+    nav("/");                                     // IntroPage 라우트
+    return;
+  }
+  dispatch({ type: "PREV" });
+};
 
   const years = useMemo(() => {
     const now = new Date().getFullYear();
