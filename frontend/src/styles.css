@@ -265,3 +265,11 @@ body{
   .hero-btn{ top:43.5%; }
   .hero-btn img{ width:clamp(100px, 38vw, 180px); }
 }
+
+.pyramid-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  background:#fff;
+  margin:12px 0;
+}
