@@ -7,14 +7,14 @@ import SmartImg from "../components/SmartImg.jsx";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
-/** Q1(성별) 답 → "M" | "W" | null */
+/* Q1 성별 → 'M' | 'W' | null */
 function sexFromQ1(ans) {
   if (ans === 1 || ans === 3) return "M";
   if (ans === 2 || ans === 4) return "W";
   return null;
 }
 
-/** 옵션 이미지 base 경로 생성기 */
+/* 옵션 이미지 base 경로 */
 function buildOptionBase({ q, a, lang, q1Answer }) {
   const langSuf = lang === "ENG" ? "_eng" : "";
   if (q === 10 || q === 12) {
@@ -25,10 +25,7 @@ function buildOptionBase({ q, a, lang, q1Answer }) {
   return `assets/option-${q}-${a}${langSuf}`;
 }
 
-/** 질문(문항 제목) 이미지 base 경로 생성기
- *  - public/assets/quiz-question-1.jpg
- *  - public/assets/quiz-question-1_eng.jpg
- */
+/* 질문(문항 제목) 이미지 base 경로 */
 function buildQuestionBase({ q, lang }) {
   const langSuf = lang === "ENG" ? "_eng" : "";
   return `assets/quiz-question-${q}${langSuf}`;
@@ -45,7 +42,7 @@ export default function QuizPage() {
   const pick = async (a) => {
     dispatch({ type: "SET_ANSWER", index: current, value: a });
 
-    // Q2(출생연도)는 select라 자동 이동 안 함
+    // Q2는 select라 자동 이동 X
     if (current === 1) return;
 
     if (current === NUM_Q - 1) {
@@ -92,14 +89,7 @@ export default function QuizPage() {
   const renderOption = (qIndex, aIndex) => {
     const q = qIndex + 1;
     const a = aIndex + 1;
-
-    const base = buildOptionBase({
-      q,
-      a,
-      lang,
-      q1Answer,
-    });
-
+    const base = buildOptionBase({ q, a, lang, q1Answer });
     const selected = answers[qIndex] === a;
 
     return (
@@ -116,7 +106,7 @@ export default function QuizPage() {
   };
 
   const qNumber = current + 1;
-  const qTitleBase = buildQuestionBase({ q: qNumber, lang }); // ← 질문 이미지 base
+  const qTitleBase = buildQuestionBase({ q: qNumber, lang });
 
   return (
     <div className="page">
@@ -131,7 +121,7 @@ export default function QuizPage() {
         </div>
 
         <div className="q-card">
-          {/* 질문 제목 이미지를 표시 */}
+          {/* 질문 제목 이미지 */}
           <div style={{ marginBottom: 10 }}>
             <SmartImg
               base={qTitleBase}
@@ -141,7 +131,7 @@ export default function QuizPage() {
           </div>
 
           {current === 1 ? (
-            // Q2: 출생연도
+            // Q2: 출생연도 (버튼을 세로 정렬로만 변경)
             <div style={{ padding: 8 }}>
               <select
                 value={birthYear || ""}
@@ -164,16 +154,33 @@ export default function QuizPage() {
                 ))}
               </select>
 
-              <div className="quiz-bottom-actions" style={{ marginTop: 16, gap: 12 }}>
+              {/* ← 여기만 세로 배치 & 풀폭 버튼 */}
+              <div
+                className="quiz-bottom-actions"
+                style={{
+                  marginTop: 16,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  gap: 10,
+                }}
+              >
                 <button
-                  className="btn secondary btn-lg"
+                  className="btn secondary"
                   onClick={goPrev}
                   disabled={current === 0}
+                  style={{
+                    width: "100%",
+                    minHeight: 44,
+                    fontSize: 16,
+                    borderRadius: 12,
+                  }}
                 >
                   {lang === "ENG" ? "Back" : "뒤로"}
                 </button>
+
                 <button
-                  className="btn btn-lg"
+                  className="btn"
                   onClick={() => {
                     if (!birthYear) {
                       alert(
@@ -185,6 +192,12 @@ export default function QuizPage() {
                     }
                     if (current === NUM_Q - 1) submitResult();
                     else dispatch({ type: "NEXT" });
+                  }}
+                  style={{
+                    width: "100%",
+                    minHeight: 44,
+                    fontSize: 16,
+                    borderRadius: 12,
                   }}
                 >
                   {lang === "ENG" ? "Next" : "다음"}
