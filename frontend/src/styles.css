@@ -14,6 +14,7 @@
   /* ▼ LANG 아이콘/터치 크기 (여기만 조절하면 됨) */
   --lang-hit: 40px;    /* 클릭/터치 영역(투명) 기본 40px */
   --lang-icon: 16px;   /* LANG 이미지 '높이' 기본 16px (가로는 비율 유지) */
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
 /* ===== Reset ===== */
@@ -28,10 +29,16 @@ body{
 
 /* ===== Topbar ===== */
 .topbar{
-  position:sticky; top:0; z-index:30;
-  display:flex; align-items:center; justify-content:center;
-  background:#fff; border-bottom:1px solid var(--border);
-  padding:6px 40px;
+  position: sticky;   /* 스크롤해도 항상 위에 */
+  top: 0;
+  z-index: 1000;      /* 히어로 이미지/컨텐츠 위로 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: calc(10px + var(--safe-top)) 14px 10px; /* 안전영역만큼 위 패딩 추가 */
+  background: #ffffff; /* 뒤 요소와 겹칠 때 아이콘이 묻히지 않도록 */
+  border-bottom: 1px solid rgba(0,0,0,0.04);
   overflow:visible; /* 드롭다운이 아래로 보이도록 */
 }
 .topbar .brand{
@@ -220,6 +227,7 @@ body{
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 12px;
 }
 
 /* 핵심: 이미지의 표시 최대 높이 제한으로 세로 과점유 방지 */

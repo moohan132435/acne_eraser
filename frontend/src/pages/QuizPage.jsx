@@ -72,17 +72,16 @@ export default function QuizPage() {
     }
   };
 
-const goPrev = () => {
-  if (current === 0) {
-    // Q1에서 뒤로가기 → Intro로 이동 (언어 유지)
-    const keep = state.lang;
-    dispatch({ type: "RESET" });                 // answers/result 초기화
-    dispatch({ type: "SET_LANG", payload: keep });// 언어 유지
-    nav("/");                                     // IntroPage 라우트
-    return;
-  }
-  dispatch({ type: "PREV" });
-};
+  const goPrev = () => {
+    if (current === 0) {
+      const keep = state.lang;
+      dispatch({ type: "RESET" });
+      dispatch({ type: "SET_LANG", payload: keep });
+      nav("/");
+      return;
+    }
+    dispatch({ type: "PREV" });
+  };
 
   const years = useMemo(() => {
     const now = new Date().getFullYear();
@@ -118,6 +117,11 @@ const goPrev = () => {
   const qNumber = current + 1;
   const qTitleBase = buildQuestionBase({ q: qNumber, lang });
 
+  // ✅ Q1(성별)에서만: KOR은 2개, ENG는 4개 옵션
+  const optionCount =
+    current === 0 ? (lang === "KOR" ? 2 : 4) : 4;
+  const optionIndexes = Array.from({ length: optionCount }, (_, i) => i);
+
   return (
     <div className="page">
       <header className="topbar">
@@ -141,7 +145,7 @@ const goPrev = () => {
           </div>
 
           {current === 1 ? (
-            // Q2: 출생연도 (버튼을 세로 정렬로만 변경)
+            // Q2: 출생연도 (버튼 세로 정렬)
             <div style={{ padding: 8 }}>
               <select
                 value={birthYear || ""}
@@ -164,7 +168,6 @@ const goPrev = () => {
                 ))}
               </select>
 
-              {/* ← 여기만 세로 배치 & 풀폭 버튼 */}
               <div
                 className="quiz-bottom-actions"
                 style={{
@@ -217,7 +220,7 @@ const goPrev = () => {
           ) : (
             <>
               <div className="opt-grid">
-                {[0, 1, 2, 3].map((i) => renderOption(current, i))}
+                {optionIndexes.map((i) => renderOption(current, i))}
               </div>
 
               <div className="quiz-bottom-actions" style={{ marginTop: 12 }}>
