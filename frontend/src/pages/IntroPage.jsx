@@ -24,13 +24,13 @@ export default function IntroPage() {
 
   return (
     <div className="page intro-page">
-      {/* 상단 브랜드 텍스트 제거, 아이콘(global.png)만 우측에 */}
+      {/* 헤더(글로벌 아이콘) */}
       <header className="topbar" onClick={(e) => e.stopPropagation()}>
         <div className="brand" />
         <LanguageSwitcher />
       </header>
 
-      {/* 인트로 영역 전체 클릭 → 퀴즈 시작 (헤더 높이만큼 margin-top은 CSS에서 처리) */}
+      {/* 인트로 히어로: 화면을 꽉 채우되 헤더는 침범하지 않음 */}
       <div
         className="intro-wrap"
         role="button"
