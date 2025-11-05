@@ -15,7 +15,6 @@ export default function IntroPage() {
     navigate("/quiz");
   };
 
-  // 키보드(Enter/Space)로도 시작 가능
   const onIntroKeyDown = (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -25,13 +24,13 @@ export default function IntroPage() {
 
   return (
     <div className="page intro-page">
-      {/* 헤더는 클릭해도 퀴즈 시작 안 되도록 버블링 차단 */}
+      {/* 상단 브랜드 텍스트 제거, 아이콘(global.png)만 우측에 */}
       <header className="topbar" onClick={(e) => e.stopPropagation()}>
-        <div className="brand"></div>
+        <div className="brand" />
         <LanguageSwitcher />
       </header>
 
-      {/* ✅ 인트로 영역 전체 클릭 → 퀴즈 시작 */}
+      {/* 인트로 영역 전체 클릭 → 퀴즈 시작 (헤더 높이만큼 margin-top은 CSS에서 처리) */}
       <div
         className="intro-wrap"
         role="button"
@@ -49,7 +48,6 @@ export default function IntroPage() {
             className="intro-hero"
             loading="lazy"
           />
-          {/* 기존 버튼은 제거 (전체 클릭으로 대체) */}
         </div>
       </div>
     </div>
