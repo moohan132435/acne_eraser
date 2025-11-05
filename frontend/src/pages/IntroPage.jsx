@@ -27,7 +27,7 @@ export default function IntroPage() {
     <div className="page intro-page">
       {/* 헤더는 클릭해도 퀴즈 시작 안 되도록 버블링 차단 */}
       <header className="topbar" onClick={(e) => e.stopPropagation()}>
-        <div className="brand">Spot Eraser</div>
+        <div className="brand"></div>
         <LanguageSwitcher />
       </header>
 

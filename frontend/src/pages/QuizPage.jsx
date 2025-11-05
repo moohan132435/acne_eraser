@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { QuizContext } from "../context/QuizContext.jsx";
 import { QUESTIONS, NUM_Q } from "../data/questions.js";
 import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
-import SmartImg from "../components/SmartImg.jsx";
+import SmartImg from "../components/SmartImage.jsx";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
@@ -121,7 +121,7 @@ const goPrev = () => {
   return (
     <div className="page">
       <header className="topbar">
-        <div className="brand">Spot Eraser</div>
+        <div className="brand"></div>
         <LanguageSwitcher />
       </header>
 
