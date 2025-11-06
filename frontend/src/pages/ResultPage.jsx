@@ -9,7 +9,7 @@ import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 function PercentPyramid({ age = 23, percent = 50, lang = "KOR" }) {
   const svgRef = React.useRef(null);
   const [bandHViewBox, setBandHViewBox] = React.useState(8);
-  const APPROX_2CM_PX = 72;
+  const APPROX_2CM_PX = 32;
 
   React.useLayoutEffect(() => {
     const el = svgRef.current;
@@ -231,8 +231,8 @@ export default function ResultPage() {
           title: lang === "ENG" ? "PGB Skin Diagnosis Result" : "PGB 피부진단 결과",
           text:
             lang === "ENG"
-              ? "Check my skin diagnosis result."
-              : "내 피부진단 결과를 확인해보세요.",
+              ? "Check my skin diagnosis result.🔍"
+              : "내 피부진단 결과를 확인해보세요.🔍",
           url: shareUrl,
         });
         return;
