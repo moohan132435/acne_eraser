@@ -77,7 +77,7 @@ export default function QuizPage() {
       const keep = state.lang;
       dispatch({ type: "RESET" });
       dispatch({ type: "SET_LANG", payload: keep });
-      nav("/");
+      nav("/"); // ✅ Q1에서는 홈으로
       return;
     }
     dispatch({ type: "PREV" });
@@ -118,8 +118,7 @@ export default function QuizPage() {
   const qTitleBase = buildQuestionBase({ q: qNumber, lang });
 
   // ✅ Q1(성별)에서만: KOR은 2개, ENG는 4개 옵션
-  const optionCount =
-    current === 0 ? (lang === "KOR" ? 2 : 4) : 4;
+  const optionCount = current === 0 ? (lang === "KOR" ? 2 : 4) : 4;
   const optionIndexes = Array.from({ length: optionCount }, (_, i) => i);
 
   return (
@@ -145,7 +144,7 @@ export default function QuizPage() {
           </div>
 
           {current === 1 ? (
-            // Q2: 출생연도 (버튼 세로 정렬)
+            /* Q2: 출생연도 */
             <div style={{ padding: 8 }}>
               <select
                 value={birthYear || ""}
@@ -174,26 +173,16 @@ export default function QuizPage() {
                   marginTop: 16,
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "stretch",
+                  alignItems: "center",
                   gap: 10,
                 }}
               >
-                <button
-                  className="btn secondary"
-                  onClick={goPrev}
-                  disabled={current === 0}
-                  style={{
-                    width: "100%",
-                    minHeight: 44,
-                    fontSize: 16,
-                    borderRadius: 12,
-                  }}
-                >
+                {/* 🔹 통일된 버튼(1번과 동일 룩) */}
+                <button className="btn back-soft btn-lg" onClick={goPrev}>
                   {lang === "ENG" ? "Back" : "뒤로"}
                 </button>
 
-                <button
-                  className="btn"
+                <button className="btn btn-lg"
                   onClick={() => {
                     if (!birthYear) {
                       alert(
@@ -205,12 +194,6 @@ export default function QuizPage() {
                     }
                     if (current === NUM_Q - 1) submitResult();
                     else dispatch({ type: "NEXT" });
-                  }}
-                  style={{
-                    width: "100%",
-                    minHeight: 44,
-                    fontSize: 16,
-                    borderRadius: 12,
                   }}
                 >
                   {lang === "ENG" ? "Next" : "다음"}
@@ -224,11 +207,8 @@ export default function QuizPage() {
               </div>
 
               <div className="quiz-bottom-actions" style={{ marginTop: 12 }}>
-                <button
-                  className="btn secondary btn-lg"
-                  onClick={goPrev}
-                  disabled={current === 0}
-                >
+                {/* 🔹 모든 문항 공통: 동일 클래스 사용 */}
+                <button className="btn back-soft btn-lg" onClick={goPrev}>
                   {lang === "ENG" ? "Back" : "뒤로"}
                 </button>
               </div>

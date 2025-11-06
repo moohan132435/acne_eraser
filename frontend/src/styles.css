@@ -1,7 +1,7 @@
 /* ===== Fonts ===== */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap');
 
-/* ===== Theme & Layout Vars ===== */
+/* ===== Theme ===== */
 :root{
   --brand:       #065f46;
   --brand-weak:  #e6f6f1;
@@ -9,23 +9,18 @@
   --muted:       #6b7280;
   --border:      #e5e7eb;
   --bg:          #ffffff;
+  --intro-gap: 5px;
 
-  /* Intro spacing */
-  --intro-gap: 6px;
-
-  /* LANG icon */
+  /* ▼ LANG 아이콘/터치 크기 */
   --lang-hit: 44px;
   --lang-icon: 32px;
-
-  /* Safe-area + Topbar */
   --safe-top: env(safe-area-inset-top, 0px);
-  --topbar-pad-y: 18px;
-  --topbar-pad-x: 14px;
-  --topbar-bottom-pad: 8px;
-  --topbar-height: calc(var(--safe-top) + var(--topbar-pad-y) * 2 + var(--topbar-bottom-pad));
+  --topbar-pad-y: 20px;
+  --topbar-pad-x: 12px;
 
-  /* 인트로에서 헤더와의 간격을 약간 더 붙이기 위한 오프셋(음수로 당김) */
-  --intro-tight-offset: -6px;
+  /* ✅ 뒤로 버튼 전용 옅은 민트 */
+  --back-mint:  #9fd8cb;   /* 테두리/글씨 */
+  --back-mint-bg: #f4fffc; /* 호버시 아주 살짝만 */
 }
 
 /* ===== Reset ===== */
@@ -36,7 +31,6 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:"Noto Sans KR","Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
-  overflow-x:hidden; /* 100vw 사용 시 가로 스크롤 방지 */
 }
 
 /* ===== Topbar ===== */
@@ -46,103 +40,85 @@ body{
   z-index: 1000;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 8px;
-  padding: calc(var(--topbar-pad-y) + var(--safe-top)) var(--topbar-pad-x) var(--topbar-bottom-pad);
+  padding: calc(10px + var(--safe-top)) 14px 10px;
   background: #ffffff;
   border-bottom: 1px solid rgba(0,0,0,0.04);
-  overflow: visible;
+  overflow:visible;
 }
-.topbar .brand{ display:none; }
+.topbar .brand{
+  margin:0;
+  font-weight:800;
+  letter-spacing:.2px;
+  color:var(--brand);
+  font-size:clamp(20px, 6vw, 32px);
+}
 
-/* ===== Language Switcher ===== */
-.lang-switcher{ position:relative; z-index:5000; }
+/* ===== Language switcher (요약) ===== */
+.lang-switcher{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%); z-index:5000;
+}
 .lang-switcher__btn{
   display:inline-flex; align-items:center; justify-content:center;
   width:var(--lang-hit); height:var(--lang-hit);
-  background:transparent; border:0; box-shadow:none; border-radius:12px; padding:0; cursor:pointer;
+  background:transparent; border:0; padding:0; cursor:pointer;
 }
-.lang-switcher__btn img, .lang-switcher__btn svg{
-  width: var(--lang-icon); height: var(--lang-icon); display:block;
-}
+.lang-switcher__btn img{ height:var(--lang-icon); width:auto; display:block; }
 .lang-switcher__label{ display:none; }
 .lang-switcher__menu{
-  position:absolute; top: calc(100% + 8px); right:0;
+  position:absolute; top:calc(100% + 8px); right:0;
   min-width:112px; background:#fff; border-radius:12px;
   border:1px solid rgba(0,0,0,.06); box-shadow:0 12px 24px rgba(0,0,0,.16);
-  z-index:5001; opacity:0; transform:translateY(-4px); pointer-events:none;
-  transition:opacity .15s ease, transform .15s ease;
-  list-style:none; margin:0; padding:6px; padding-inline-start:0;
+  opacity:0; transform:translateY(-4px); pointer-events:none;
+  transition:opacity .15s ease, transform .15s ease; list-style:none; margin:0; padding:6px;
 }
+.lang-switcher__menu li{ list-style:none; margin:0; padding:0; }
 .lang-switcher__menu::before{
   content:""; position:absolute; top:-6px; right:14px; width:12px; height:12px;
   background:#fff; transform:rotate(45deg);
   border-left:1px solid rgba(0,0,0,.06); border-top:1px solid rgba(0,0,0,.06);
 }
 .lang-switcher.open .lang-switcher__menu{ opacity:1; transform:translateY(0); pointer-events:auto; }
-.lang-switcher__menu li{ list-style:none; margin:0; padding:0; }
-.lang-switcher__item{
-  width:100%; padding:10px 14px; border:0; border-radius:8px; background:#fff;
-  font-weight:700; text-align:center; cursor:pointer;
-}
+.lang-switcher__item{ width:100%; padding:10px 14px; border:0; border-radius:8px; background:#fff; font-weight:700; text-align:center; cursor:pointer; }
 .lang-switcher__item:hover{ background:#f3f4f6; }
-/* 구버전 안전망 */
+
+/* 구형 클래스 안전망 */
 .icon-btn{ cursor:pointer; border-radius:10px; }
 .icon-btn--plain{ background:transparent; border:0; padding:6px; line-height:0; }
-.lang-icon{ display:block; width:22px; height:22px; object-fit:contain; }
-.lang-menu,.lang-item{ display:none !important; }
+.lang-icon{ display:block; width:22px; height:22px; object-fit:contain; image-rendering:auto; }
+.lang-menu, .lang-item{ display:none !important; }
 
 /* ===== Containers ===== */
 .quiz-wrap   { max-width:920px;  margin:0 auto; padding:16px 20px; }
 .result-wrap { max-width:720px;  margin:0 auto; padding:24px 20px; }
 
-/* ===== Intro 페이지 ===== */
-.page.intro-page{
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  overflow-x:hidden;
-}
-
-/* 헤더와의 간격 최소화 & 좌우 꽉 채우기 위해 padding 제거 */
+/* ===== Intro 페이지 레이아웃 ===== */
+.page.intro-page { min-height: 100dvh; display:flex; flex-direction:column; }
 .intro-page .intro-wrap{
-  flex:1;
-  display:grid;
-  place-items:center;
-  width:100%;
-  padding: 0;                     /* 좌우/상하 패딩 제거 → 꽉 차게 */
-  margin: 0;
-  /* 헤더 높이만큼은 확보하되 살짝 당겨서 간격 축소 */
-  margin-top: calc(var(--topbar-height) + var(--intro-tight-offset));
-}
-
-/* 이미지 컨테이너를 화면 너비로, 여백 제거 */
-.intro-hero-wrapper{
-  width: 100vw;
-  max-width: 100vw;
-  margin: 0; padding: 0;
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden;                 /* 혹시 모를 가로 스크롤 방지 */
-}
-
-/* Intro.png를 좌우 빈틈 없이 꽉 차게 */
-.intro-hero{
-  display:block;
-  width: 100vw;                    /* 화면 가로 꽉 채우기 */
-  max-width: 100vw;
-  height:auto;
-  max-height: calc(100dvh - var(--topbar-height)); /* 헤더 침범 방지 */
-  object-fit: contain;             /* 세로 잘림 방지 */
-  margin:0;
+  flex:1; display:grid; place-items:center; width:100%;
+  padding-inline:16px; padding-block: var(--intro-gap); margin:0;
 }
 
 /* ===== Buttons ===== */
 .btn{
   padding:10px 16px; border-radius:12px;
-  border:1px solid var(--brand); background:var(--brand); color:#fff;
+  border:1px solid var(--brand);
+  background:var(--brand); color:#fff;
   cursor:pointer; font-weight:800;
 }
 .btn.secondary{ background:#fff; color:var(--brand); }
+
+/* ✅ “뒤로” 버튼 전용 옅은 민트 스타일 */
+.btn.back-soft{
+  background:#fff !important;
+  color:#4fb39d !important;
+  border:2px solid #4fb39d !important;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.02);
+}
+.btn.back-soft:hover{ background:#4fb39d(--back-mint-bg); filter:none; }
+.btn.back-soft:disabled{ opacity:.6; cursor:not-allowed; }
+
 .btn:hover{ filter:brightness(.97); }
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 .btn-lg{ padding:14px 22px; min-height:48px; min-width:200px; font-size:18px; border-radius:14px; }
@@ -150,7 +126,7 @@ body{
 .insta-btn{ display:flex; align-items:center; justify-content:center; text-decoration:none; }
 
 .quiz-bottom-actions{ display:flex; justify-content:center; margin:16px 0 8px; }
-.result-actions     { display:flex; flex-direction:column; gap:12px; margin-top:16px; justify-content:center; }
+.result-actions{ display:flex; flex-direction:column; gap:12px; margin-top:16px; justify-content:center; }
 
 /* ===== Quiz ===== */
 .progress{
@@ -173,12 +149,35 @@ body{
 .opt.selected{ border:3px solid var(--brand); background:var(--brand-weak); }
 .opt img{ width:100%; display:block; }
 
-/* ===== Mobile tweaks ===== */
+/* ===== Intro (hero) ===== */
+.intro-hero-wrapper {
+  max-width: 1000px;
+  width: 100%;
+  height: 100%;
+  display:flex; justify-content:center; align-items:center;
+  margin-top: 12px;
+  margin: 0 auto;
+  padding: 0 2px;
+}
+.intro-hero{
+  display:block; width:100%; max-width: 820px; height:auto;
+  max-height: calc(90vh - (var(--intro-gap) * 2));
+  object-fit: contain; margin:0 auto;
+}
+.hero-btn{
+  position:absolute; left:50%; transform: translateX(-50%);
+  top:45%; background:transparent; border:0; padding:0; line-height:0; cursor:pointer;
+  margin-left:25px;
+}
+.hero-btn img{ display:block; width:clamp(110px, 34vw, 200px); height:auto; user-select:none; -webkit-user-drag:none; }
+
 @media (max-width: 480px){
-  .intro-hero{ max-height: calc(100dvh - var(--topbar-height)); }
+  .topbar{ padding:6px 32px; }
+  .intro-hero{ max-height: calc(92vh - (var(--intro-gap) * 2)); object-fit: contain; }
+  .hero-btn{ top:43.5%; }
+  .hero-btn img{ width:clamp(100px, 38vw, 180px); }
 }
 
-/* Pyramid card wrapper */
 .pyramid-card{
   border:1px solid var(--border);
   border-radius:12px;
