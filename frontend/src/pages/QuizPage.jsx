@@ -5,7 +5,11 @@ import { QUESTIONS, NUM_Q } from "../data/questions.js";
 import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 import SmartImg from "../components/SmartImage.jsx";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
+// const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  (import.meta.env.PROD ? "https://acne-eraser.onrender.com" : "http://127.0.0.1:8000");
+
 
 /* Q1 성별 → 'M' | 'W' | null */
 function sexFromQ1(ans) {

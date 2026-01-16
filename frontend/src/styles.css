@@ -133,7 +133,7 @@ body{
   border:0; border-radius:8px; background:#fff;
   font-weight:700; text-align:center; cursor:pointer;
 }
-.lang-switcher__item:hover{ background:#f3f4f6; }
+.lang-switcher__item:hover{ background:#f3f4f6; }   
 
 /* 구형 클래스 비활성 */
 .icon-btn{ cursor:pointer; border-radius:10px; }
