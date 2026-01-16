@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuizContext } from "../context/QuizContext.jsx";
 import { QUESTIONS, NUM_Q } from "../data/questions.js";
@@ -9,7 +9,6 @@ import SmartImg from "../components/SmartImage.jsx";
 const API_BASE =
   import.meta.env.VITE_API_BASE ||
   (import.meta.env.PROD ? "https://acne-eraser.onrender.com" : "http://127.0.0.1:8000");
-
 
 /* Q1 성별 → 'M' | 'W' | null */
 function sexFromQ1(ans) {
@@ -39,6 +38,18 @@ export default function QuizPage() {
   const nav = useNavigate();
   const { state, dispatch } = useContext(QuizContext);
   const { lang, current, answers, birthYear } = state;
+
+  /**
+   * ✅ 진입 시 무조건 영어 고정
+   * - 기존 기능(SET_LANG dispatch)을 활용해 강제
+   * - 한국어로 들어오거나(localStorage/초기값 등), 중간에 KOR로 바뀌어도 ENG 유지
+   */
+  useEffect(() => {
+    if (lang !== "ENG") {
+      dispatch({ type: "SET_LANG", payload: "ENG" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   const q1Answer = answers?.[0] ?? null;
   const progress = Math.round((current / NUM_Q) * 100);
@@ -72,6 +83,7 @@ export default function QuizPage() {
       dispatch({ type: "SET_RESULT", value: data });
       nav("/result", { state: { result: data } });
     } catch (e) {
+      // 기존 문구 유지(기능 유지 목적). 실제로는 lang이 ENG로 고정이라 ENG UI만 보이게 됨.
       alert(`결과 계산 실패: ${e?.message || e}`);
     }
   };
@@ -122,6 +134,7 @@ export default function QuizPage() {
   const qTitleBase = buildQuestionBase({ q: qNumber, lang });
 
   // ✅ Q1(성별)에서만: KOR은 2개, ENG는 4개 옵션
+  // - lang을 ENG로 강제하므로, 실제로는 Q1에서 4개 옵션이 사용됨
   const optionCount = current === 0 ? (lang === "KOR" ? 2 : 4) : 4;
   const optionIndexes = Array.from({ length: optionCount }, (_, i) => i);
 
@@ -129,6 +142,7 @@ export default function QuizPage() {
     <div className="page">
       <header className="topbar">
         <div className="brand"></div>
+        {/* ✅ LanguageSwitcher는 현재 UI 렌더가 null(숨김)이라 아무것도 안 보임 */}
         <LanguageSwitcher />
       </header>
 
@@ -186,7 +200,8 @@ export default function QuizPage() {
                   {lang === "ENG" ? "Back" : "뒤로"}
                 </button>
 
-                <button className="btn btn-lg"
+                <button
+                  className="btn btn-lg"
                   onClick={() => {
                     if (!birthYear) {
                       alert(
