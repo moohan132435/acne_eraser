@@ -40,7 +40,7 @@ export default function SharePage() {
         />
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
           <button className="btn btn-lg" onClick={() => nav("/")}>
-            {lang === "ENG" ? "How old is my skin?" : "내 피부 나이는 몇살일까?"}
+            {lang === "ENG" ? "What is my skin age?" : "내 피부 나이는 몇살일까?"}
           </button>
         </div>
       </div>
