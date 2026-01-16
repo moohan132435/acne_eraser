@@ -276,11 +276,11 @@ export default function ResultPage() {
         >
           <a
             className="btn btn-lg insta-btn"
-            href="https://www.instagram.com/pgb_global/"
+            href="https://www.amazon.com/dp/B0GD6529ZB"
             target="_blank"
             rel="noreferrer"
           >
-            {lang === "ENG" ? "Message on Instagram" : "인스타 DM 상담하기"}
+            {lang === "ENG" ? "Buy personalized acne patches" : "맞춤형 여드름패치 구매하기"}
           </a>
 
           {/* ✅ 공유 버튼 (정적 썸네일 URL 공유) */}
