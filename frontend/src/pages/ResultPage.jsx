@@ -22,7 +22,17 @@ function PercentPyramid({ age = 23, percent = 50, lang = "KOR" }) {
   const pRaw = Number(percent);
   const p = Math.min(100, Math.max(0, Number.isFinite(pRaw) ? pRaw : 0));
 
-  const ageNum = Number(age);
+  /**
+   * ✅ (반영) ageNum도 1자리 반올림으로 정규화 + 표시용 문자열(항상 1자리)
+   * - 정책(-5%)은 ResultPage에서 처리
+   * - 여기서는 "표시 안정화" 차원으로 1자리로만 맞춤
+   */
+  const ageRaw = Number(age);
+  const ageNum = Number.isFinite(ageRaw) ? Math.round(ageRaw * 10) / 10 : 23; // 숫자
+  const ageDisplay = Number.isFinite(ageRaw)
+    ? (Math.round(ageRaw * 10) / 10).toFixed(1)
+    : "23.0"; // 문자열(항상 1자리)
+
   const decadeStart = Math.floor((Number.isFinite(ageNum) ? ageNum : 20) / 10) * 10;
   const decadeLabel = lang === "ENG" ? `${decadeStart}s` : `${decadeStart}대`;
 
@@ -31,7 +41,9 @@ function PercentPyramid({ age = 23, percent = 50, lang = "KOR" }) {
   const boundaryH = 2;
 
   const title1 =
-    lang === "ENG" ? `Your skin age is ${ageNum}.` : `당신의 피부나이는 ${ageNum}살입니다.`;
+    lang === "ENG"
+      ? `Your skin age is ${ageDisplay}.`
+      : `당신의 피부나이는 ${ageDisplay}살입니다.`;
   const title2 =
     lang === "ENG"
       ? `Top ${p}% among people in their ${decadeLabel}.`
@@ -202,7 +214,14 @@ export default function ResultPage() {
     } catch {}
   }
 
-  const skinAge = Number(result?.skin_age ?? 23);
+  /**
+   * ✅ (반영) backend 원본 나이에 -5% 적용 + 소수점 1자리 반올림
+   */
+  const rawSkinAge = Number(result?.skin_age ?? 23);
+  const skinAge = Number.isFinite(rawSkinAge)
+    ? Math.round(rawSkinAge * 0.95 * 10) / 10
+    : 23;
+
   const percentile = Number(result?.skin_percentile ?? 50);
 
   // 결과 이미지(언어 반영)
@@ -247,10 +266,7 @@ export default function ResultPage() {
       alert(lang === "ENG" ? "Link copied! Share it anywhere." : "링크가 복사되었습니다.");
     } catch {
       // 폴백 2: 프롬프트
-      prompt(
-        lang === "ENG" ? "Copy this link:" : "아래 링크를 복사해 주세요:",
-        shareUrl
-      );
+      prompt(lang === "ENG" ? "Copy this link:" : "아래 링크를 복사해 주세요:", shareUrl);
     }
   };
 
