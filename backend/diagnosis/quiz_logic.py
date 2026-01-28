@@ -46,29 +46,30 @@ WEIGHTS: Dict[int, Dict[int, Dict[str, Dict[str, int]]]] = {
     # Q7
     7: {1: {"B": {"environment": 1}, "A": {"dry": 1}}, 2: {"A": {"dry": 1}}, 3: {}, 4: {}},
     # Q8
-    8: {1: {"A": {"oily": 1}, "B": {"environment": 1}},
+    8: {
+        1: {"A": {"oily": 1}, "B": {"environment": 1}},
         2: {"A": {"sensitivity": 1}, "B": {"stress": 1}},
         3: {"B": {"environment": 2}},
-        4: {"A": {"combination": 1}, "B": {"stress": 1}}},
+        4: {"A": {"combination": 1}, "B": {"stress": 1}},
+    },
     # Q9
     9: {1: {}, 2: {}, 3: {}, 4: {}},
-    # Q10 (성별 분기 이미지만 다르고 점수는 동일 가정)
-    10: {1: {"A": {"oily": 1}, "B": {"environment": 1}},
-         2: {"B": {"stress": 1}, "A": {"sensitivity": 1}},
-         3: {"A": {"combination": 1}},
-         4: {}},
-    # Q11 (유전)
+    # Q10
+    10: {
+        1: {"A": {"oily": 1}, "B": {"environment": 1}},
+        2: {"B": {"stress": 1}, "A": {"sensitivity": 1}},
+        3: {"A": {"combination": 1}},
+        4: {},
+    },
+    # Q11
     11: {1: {"A": {"sensitivity": 2}}, 2: {"A": {"sensitivity": 1}}, 3: {}, 4: {}},
-    # Q12 (성별 분기 이미지만 다르고 점수는 동일 가정)
-    12: {1: {"A": {"oily": 1}},
-         2: {"A": {"dry": 1}},
-         3: {"B": {"environment": 1}},
-         4: {}},
+    # Q12
+    12: {1: {"A": {"oily": 1}}, 2: {"A": {"dry": 1}}, 3: {"B": {"environment": 1}}, 4: {}},
 }
 
-# === 총점 → 백분위/나이 가중 ===
-#   표 이미지(전체 점수에 따른 피부나이 표출 로직) 반영
-#   (범위: [min,max] 포함)
+# ----
+# 점수(총점) → 백분위/피부나이 조정율(캡쳐 표)
+# ----
 PCT_AGE_TABLE = [
     ((18, 99),  "상위 5%",  -0.30),
     ((16, 17),  "상위 10%", -0.20),
@@ -83,11 +84,11 @@ PCT_AGE_TABLE = [
     ((5,  5 ),  "하위 5%",  +0.25),
 ]
 
-def _acc(dst: Dict[str, int], add: Dict[str, int]) -> None:
-    for k, v in add.items():
-        dst[k] = dst.get(k, 0) + int(v)
+def _acc(dst: Dict[str,int], add: Dict[str,int]) -> None:
+    for k,v in add.items():
+        dst[k] = dst.get(k,0) + int(v)
 
-def _pick(scores: Dict[str, int], threshold: Dict[str, int], order: List[str]) -> Optional[str]:
+def _pick(scores: Dict[str,int], threshold: Dict[str,int], order: List[str]) -> Optional[str]:
     cand = [k for k in order if scores.get(k,0) >= threshold.get(k,10**9)]
     if not cand:
         return None

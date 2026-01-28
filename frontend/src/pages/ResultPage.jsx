@@ -197,8 +197,71 @@ function PercentPyramid({ age = 23, percent = 50, lang = "KOR" }) {
 }
 
 /* ===========================
-   결과 페이지
+   퍼센트(캡쳐 표) 계산 유틸
+   - KR(한국버전)과 동일한 구간 로직으로 통일
 =========================== */
+function topPercentFromScore(score) {
+  const s = Number(score);
+  if (!Number.isFinite(s)) return null;
+
+  if (s >= 18) return 5;
+  if (s >= 16) return 10;
+  if (s >= 15) return 15;
+  if (s >= 13) return 20;
+  if (s >= 12) return 25;
+  if (s >= 10) return 50;
+  if (s >= 9) return 75; // 하위 25% = 상위 75%
+  if (s >= 8) return 80; // 하위 20% = 상위 80%
+  if (s >= 7) return 85; // 하위 15% = 상위 85%
+  if (s >= 6) return 90; // 하위 10% = 상위 90%
+  return 95; // 하위 5% = 상위 95%
+}
+
+function readScore(result) {
+  if (!result) return null;
+  const candidates = [
+    result.total_score,
+    result.totalScore,
+    result.score,
+    result.sum_score,
+    result.sumScore,
+    result.point,
+    result.points,
+  ];
+  for (const v of candidates) {
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+/**
+ * ✅ 퍼센트는 '캡쳐 표(점수 구간)'이 기준
+ * - score 기반 계산이 1순위
+ * - score를 못 읽는 경우에만 BE percentile 필드를 fallback
+ */
+function readPercentile(result) {
+  if (!result) return null;
+
+  const score = readScore(result);
+  const byScore = topPercentFromScore(score);
+  if (byScore != null) return byScore;
+
+  const candidates = [
+    result.skin_percentile,
+    result.percentile,
+    result.rank_percent,
+    result.rankPercent,
+    result.skinPercentile,
+    result.skin_percent,
+  ];
+  for (const v of candidates) {
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
 export default function ResultPage() {
   const nav = useNavigate();
   const { state, dispatch } = React.useContext(QuizContext);
@@ -222,7 +285,14 @@ export default function ResultPage() {
     ? Math.round(rawSkinAge * 0.95 * 10) / 10
     : 23;
 
-  const percentile = Number(result?.skin_percentile ?? 50);
+  /**
+   * ✅ (KR 기준) 퍼센트는 점수(total_score) → 캡쳐 표 구간으로 계산
+   * - 점수를 못 읽는 예외 케이스에서만 BE 필드 fallback
+   */
+  const percentile = (() => {
+    const p = readPercentile(result);
+    return Number.isFinite(Number(p)) ? Number(p) : 50; // 최후 fallback만 50
+  })();
 
   // 결과 이미지(언어 반영)
   let imgSrc =
@@ -299,7 +369,6 @@ export default function ResultPage() {
             {lang === "ENG" ? "Buy personalized acne patches" : "맞춤형 여드름패치 구매하기"}
           </a>
 
-          {/* ✅ 공유 버튼 (정적 썸네일 URL 공유) */}
           <button className="btn btn-lg share-btn" onClick={handleShare}>
             {lang === "ENG" ? "Share" : "공유하기"}
           </button>
