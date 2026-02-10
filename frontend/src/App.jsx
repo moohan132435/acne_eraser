@@ -5,6 +5,8 @@ import QuizPage from "./pages/QuizPage.jsx";
 import ResultPage from "./pages/ResultPage.jsx";
 import SharePage from "./pages/SharePage.jsx";
 import { QuizContext } from "./context/QuizContext.jsx";
+import GoAmazon from "./pages/GoAmazon.jsx";
+
 
 /**
  * ✅ App 진입 시에도 영어 강제
