@@ -37,6 +37,7 @@ export default function App() {
         <Route path="/share-redirect/:slug" element={<SharePage />} />
 
         <Route path="*" element={<IntroPage />} />
+        <Route path="/go/amazon" element={<GoAmazon />} />
       </Routes>
     </LangGate>
   );
