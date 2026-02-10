@@ -37,7 +37,7 @@ export default function GoAmazon() {
 
     // ✅ debug=1 이면 10초 후 자동 이동 (Event Builder 확인 시간 확보)
     if (isDebug) {
-      const t = setTimeout(() => window.location.replace(dest), 1000);
+      const t = setTimeout(() => window.location.replace(dest), 10000);
       return () => clearTimeout(t);
     }
 
