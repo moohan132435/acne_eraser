@@ -37,7 +37,7 @@ export default function GoAmazon() {
 
     // ✅ debug=1 이면 3초 후 자동 이동 (Event Builder 확인 시간 확보)
     if (isDebug) {
-      const t = setTimeout(() => window.location.replace(dest), 3000);
+      const t = setTimeout(() => window.location.replace(dest), 800);
       return () => clearTimeout(t);
     }
 
@@ -52,7 +52,7 @@ export default function GoAmazon() {
 
       {isDebug ? (
         <>
-          <p>Debug mode: redirect will happen in 3 seconds for Event Builder.</p>
+          <p>Debug mode: redirect will happen in 1 seconds for Event Builder.</p>
           <p style={{ opacity: 0.7, fontSize: 12 }}>
             If you want to go now, click below:
           </p>
